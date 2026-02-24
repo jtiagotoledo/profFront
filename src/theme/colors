@@ -1,0 +1,14 @@
+export const colors = {
+  // Paleta de Cores
+  primary: '#422797',   // Sua cor da keystore, como exemplo
+  secondary: '#FFB800',
+  success: '#4CAF50',
+  danger: '#F44336',
+  
+  // Escala de Cinzas
+  white: '#FFFFFF',
+  background: '#F5F5F5',
+  text: '#212121',
+  textSecondary: '#757575',
+  border: '#E0E0E0',
+};
