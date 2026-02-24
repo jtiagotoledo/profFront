@@ -1,4 +1,4 @@
-package com.proffront
+package com.apolotecnologia.assistenteprofessor
 
 import android.app.Application
 import com.facebook.react.PackageList

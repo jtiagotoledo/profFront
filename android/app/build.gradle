@@ -77,13 +77,13 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.proffront"
+    namespace "com.apolotecnologia.assistenteprofessor"
     defaultConfig {
-        applicationId "com.apolotecnologia.assistenteprofesso"
+        applicationId "com.apolotecnologia.assistenteprofessor"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 42
-        versionName "2.0.42"
+        versionCode 43
+        versionName "2.0.43"
     }
     signingConfigs {
         debug {
