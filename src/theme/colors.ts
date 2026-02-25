@@ -7,5 +7,5 @@ export const colors = {
   // Escala de Cinzas
   lightText: '#FFFFFF',
   darkText: '#2C333C',
-  border: '#E0E0E0',
+  border: '#FFFFFF',
 };
