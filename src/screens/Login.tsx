@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, Alert, Image, ActivityIndicator, StatusBar, Platform } from "react-native";
+
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import DeviceInfo from 'react-native-device-info';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { colors } from '../theme/colors';
 import { configurarGoogle, handleGoogleSignIn } from '../services/googleAuthService';
 
 function Login() {
-    const versaoDoApp = DeviceInfo.getVersion(); 
+    const insets = useSafeAreaInsets();
+    const versaoDoApp = DeviceInfo.getVersion();
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
@@ -14,28 +18,34 @@ function Login() {
     }, []);
 
     const logarComGoogle = async () => {
-    setIsLoading(true);
-    try {
-        const response = await handleGoogleSignIn();
+        setIsLoading(true);
+        try {
+            const response = await handleGoogleSignIn();
 
-        if (response && response.data) {
-            const { idToken, user } = response.data;
-            console.log("Sucesso ao logar:", user.email);
+            if (response && response.data) {
+                const { idToken, user } = response.data;
+                console.log("Sucesso ao logar:", user.email);
+            }
+
+        } catch (error) {
+            console.error("Erro capturado:", error);
+        } finally {
+            setIsLoading(false);
         }
-
-    } catch (error) {
-        console.error("Erro capturado:", error);
-    } finally {
-        setIsLoading(false);
-    }
-};
+    };
 
     return (
-        <View style={styles.container}>
+        <View style={[
+            styles.container,
+            {
+                paddingTop: insets.top, 
+                paddingBottom: insets.bottom 
+            }
+        ]}>
             <StatusBar
                 barStyle="light-content"
                 backgroundColor={colors.primary}
-                translucent={false} 
+                translucent={false}
             />
 
             <View style={styles.content}>

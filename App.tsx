@@ -1,30 +1,14 @@
-import { StyleSheet, useColorScheme, View, Text} from 'react-native';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AppNavigator } from './src/navigation/AppNavigator';
 
-
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
-
+export default function App() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.textoTitulo}>Assistente do professor</Text>
-      <Text style={styles.texto}>Estamos em manutenção, voltaremos em breve!</Text>
-    </View>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <AppNavigator />
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor:'#F0F8FF',
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  textoTitulo:{
-    fontSize:20,
-  },
-  texto:{
-    fontSize:14,
-  }
-});
-
-export default App;
