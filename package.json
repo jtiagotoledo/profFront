@@ -17,6 +17,7 @@
     "axios": "^1.13.5",
     "react": "19.2.0",
     "react-native": "0.83.2",
+    "react-native-config": "^1.6.1",
     "react-native-device-info": "^15.0.2",
     "react-native-dotenv": "^3.4.11",
     "react-native-safe-area-context": "^5.7.0",

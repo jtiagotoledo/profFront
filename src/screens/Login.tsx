@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '../theme/colors';
 import { configurarGoogle, handleGoogleSignIn } from '../services/googleAuthService';
+import {  loginGoogleAPI } from '../services/usersApi';
 
 function Login() {
     const insets = useSafeAreaInsets();
@@ -28,6 +29,8 @@ function Login() {
 
             if (response && response.data) {
                 const { idToken, user } = response.data;
+                const res = await loginGoogleAPI(idToken);
+                console.log('respostaServidor', res);
                 navigation.replace('Home');
                 console.log("Sucesso ao logar:", user.email);
             }
