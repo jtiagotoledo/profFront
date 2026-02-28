@@ -173,11 +173,11 @@ function Login() {
                 style={styles.logo}
             />
 
-            <Text style={styles.texto}>
+            {/* <Text style={styles.texto}>
                 Entrar (Login)
-            </Text>
+            </Text> */}
 
-            <TextInput
+            {/* <TextInput
                 placeholder="Email"
                 placeholderTextColor={colors.lightText}
                 value={dadosUsuario.email}
@@ -207,9 +207,9 @@ function Login() {
                 >
                     <Icon name={isSecure ? 'eye-off' : 'eye'} size={24} color={colors.lightText} />
                 </TouchableOpacity>
-            </View>
+            </View> */}
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
                 onPress={handleLogin}
                 style={styles.botao}
                 disabled={isLoading}
@@ -223,7 +223,7 @@ function Login() {
 
             <TouchableOpacity
                 style={styles.link}
-                onPress={() => null /* navigation.navigate('Cadastro') */}
+                onPress={() => navigation.navigate('Cadastro') }
             >
                 <Text style={styles.textoPequeno}>
                     Não tem conta? <Text style={styles.textoDecorado}>Sign Up</Text>
@@ -232,7 +232,7 @@ function Login() {
 
             <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.linkRight}>
                 <Text style={styles.textoPequenoLink}>Esqueci minha senha</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <TouchableOpacity
                 onPress={logarComGoogle}
