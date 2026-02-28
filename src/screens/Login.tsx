@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, Alert, Image, ActivityIndicator, StatusBar, Platform } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import DeviceInfo from 'react-native-device-info';
 import { colors } from '../theme/colors';
 import { configurarGoogle, handleGoogleSignIn } from '../services/googleAuthService';
 
 function Login() {
+    const versaoDoApp = DeviceInfo.getVersion(); 
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
@@ -12,29 +14,28 @@ function Login() {
     }, []);
 
     const logarComGoogle = async () => {
-        setIsLoading(true);
-        try {
-            const response = await handleGoogleSignIn();
+    setIsLoading(true);
+    try {
+        const response = await handleGoogleSignIn();
 
-            if (response && response.data) {
-                const { idToken, user } = response.data;
-                console.log("Sucesso ao logar:", user.email);
-            }
-
-        } catch (error) {
-            console.error("Erro capturado:", error);
-        } finally {
-            setIsLoading(false);
+        if (response && response.data) {
+            const { idToken, user } = response.data;
+            console.log("Sucesso ao logar:", user.email);
         }
-    };
+
+    } catch (error) {
+        console.error("Erro capturado:", error);
+    } finally {
+        setIsLoading(false);
+    }
+};
 
     return (
         <View style={styles.container}>
-            {/* Configuração da Barra de Status */}
             <StatusBar
                 barStyle="light-content"
                 backgroundColor={colors.primary}
-                translucent={false}
+                translucent={false} 
             />
 
             <View style={styles.content}>
@@ -65,7 +66,7 @@ function Login() {
             </View>
 
             <View style={styles.footer}>
-                <Text style={styles.textoRodape}>v1.0.0</Text>
+                <Text style={styles.textoRodape}>v{versaoDoApp}</Text>
             </View>
         </View>
     );
@@ -75,7 +76,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.primary,
-        // Adiciona um espaçamento extra no topo apenas para iOS caso o StatusBar falhe
         paddingTop: Platform.OS === 'ios' ? 50 : 0,
     },
     content: {
