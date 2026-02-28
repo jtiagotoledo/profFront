@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, Alert, Image, ActivityIndicator, StatusBar, Platform } from "react-native";
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/types';
 import DeviceInfo from 'react-native-device-info';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -11,6 +14,7 @@ import { configurarGoogle, handleGoogleSignIn } from '../services/googleAuthServ
 function Login() {
     const insets = useSafeAreaInsets();
     const versaoDoApp = DeviceInfo.getVersion();
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
@@ -24,6 +28,7 @@ function Login() {
 
             if (response && response.data) {
                 const { idToken, user } = response.data;
+                navigation.replace('Home');
                 console.log("Sucesso ao logar:", user.email);
             }
 

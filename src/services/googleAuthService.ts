@@ -2,8 +2,7 @@ import { GoogleSignin, statusCodes, SignInResponse, isSuccessResponse } from '@r
 
 export const configurarGoogle = () => {
     GoogleSignin.configure({
-        webClientId: '1000578379733-ahmcfl9ot3gn7p87c1ed4v3ejinhvkii.apps.googleusercontent.com', 
-        offlineAccess: true,
+        webClientId: process.env.GOOGLE_WEB_CLIENT_ID, 
     });
 };
 
