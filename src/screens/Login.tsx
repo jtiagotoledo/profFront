@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Text, View, StyleSheet, TouchableOpacity, Alert, Image, ActivityIndicator, StatusBar, Platform } from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity, Image, ActivityIndicator, StatusBar, Platform } from "react-native";
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
@@ -26,13 +26,11 @@ function Login() {
         setIsLoading(true);
         try {
             const response = await handleGoogleSignIn();
-
+            
             if (response && response.data) {
-                const { idToken, user } = response.data;
-                const res = await loginGoogleAPI(idToken);
-                console.log('respostaServidor', res);
+                const { idToken } = response.data;
+                await loginGoogleAPI(idToken);
                 navigation.replace('Home');
-                console.log("Sucesso ao logar:", user.email);
             }
 
         } catch (error) {

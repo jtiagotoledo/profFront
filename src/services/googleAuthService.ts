@@ -1,8 +1,9 @@
 import { GoogleSignin, statusCodes, SignInResponse, isSuccessResponse } from '@react-native-google-signin/google-signin';
+import Config from 'react-native-config';
 
 export const configurarGoogle = () => {
     GoogleSignin.configure({
-        webClientId: process.env.GOOGLE_WEB_CLIENT_ID, 
+        webClientId: Config.GOOGLE_WEB_CLIENT_ID, 
     });
 };
 

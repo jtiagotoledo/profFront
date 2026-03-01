@@ -1,4 +1,3 @@
-import { log } from 'console';
 import api from './api'
 
 // Login com Google
