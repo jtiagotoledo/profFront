@@ -7,12 +7,14 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import DeviceInfo from 'react-native-device-info';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 import { colors } from '../theme/colors';
 import { configurarGoogle, handleGoogleSignIn } from '../services/googleAuthService';
 import {  loginGoogleAPI } from '../services/usersApi';
 
 function Login() {
+    const { t } = useTranslation();
     const insets = useSafeAreaInsets();
     const versaoDoApp = DeviceInfo.getVersion();
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -61,8 +63,8 @@ function Login() {
                     resizeMode="contain"
                 />
 
-                <Text style={styles.titulo}>Bem-vindo</Text>
-                <Text style={styles.subtitulo}>Acesse sua conta para gerenciar suas classes.</Text>
+                <Text style={styles.titulo}>{t('login.bem-vindo')}</Text>
+                <Text style={styles.subtitulo}>{t('login.msg-login')}</Text>
 
                 <TouchableOpacity
                     onPress={logarComGoogle}
@@ -75,7 +77,7 @@ function Login() {
                     ) : (
                         <View style={styles.containerInternoBotao}>
                             <Icon name="google" size={22} color={colors.lightText} />
-                            <Text style={styles.textoBotao}>Entrar com Google</Text>
+                            <Text style={styles.textoBotao}>{t('login.btn-google')}</Text>
                         </View>
                     )}
                 </TouchableOpacity>
