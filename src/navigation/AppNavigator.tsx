@@ -2,28 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from './types';
-import { colors } from '../theme/colors';
 
+import { colors } from '../theme/colors';
 import Login from '../screens/Login';
 import Home from '../screens/Home';
 import { getToken } from '../utils/authStorage';
+import { useAppStore } from '../store/useAppStore'
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function AppNavigator() {
+  const { userToken, setToken } = useAppStore();
   const [isLoading, setIsLoading] = useState(true);
-  const [userToken, setUserToken] = useState<string | null>(null);
 
   useEffect(() => {
     const bootstrapAsync = async () => {
-      let token;
-      try {
-        const res = await getToken();
-        token = res ?? null;
-      } catch (e) {
-        token = null;
-      }
-      setUserToken(token);
+      const res = await getToken();
+      setToken(res ?? null); 
       setIsLoading(false);
     };
     bootstrapAsync();
@@ -32,7 +27,7 @@ export function AppNavigator() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.secondary || '#FFFFFF'} />
+        <ActivityIndicator size="large" color={colors.secondary} />
       </View>
     );
   }
@@ -58,7 +53,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.primary, // Mantém o fundo consistente com a marca
+    backgroundColor: colors.primary, 
   },
   stackContent: {
     backgroundColor: colors.primary,

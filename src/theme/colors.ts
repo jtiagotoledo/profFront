@@ -3,6 +3,7 @@ export const colors = {
   primary: '#2C333C',   
   secondary: '#3A86FF',
   danger: '#FF4D4D',
+  white: '#FFFFFF',
   
   // Escala de Cinzas
   lightText: '#FFFFFF',

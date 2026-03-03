@@ -11,8 +11,9 @@ import { useTranslation } from 'react-i18next';
 
 import { colors } from '../theme/colors';
 import { configurarGoogle, handleGoogleSignIn } from '../services/googleAuthService';
-import {  loginGoogleAPI } from '../services/usersApi';
+import { loginGoogleAPI } from '../services/usersApi';
 import { getToken, removeToken } from '../utils/authStorage';
+import { useAppStore } from '../store/useAppStore';
 
 function Login() {
     const { t } = useTranslation();
@@ -20,26 +21,28 @@ function Login() {
     const versaoDoApp = DeviceInfo.getVersion();
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [isLoading, setIsLoading] = useState(false);
+    const loginGlobal = useAppStore((state) => state.login);
 
     useEffect(() => {
         configurarGoogle();
     }, []);
 
     const logarComGoogle = async () => {
-        const token = await getToken();
-        console.log('pegarToken',token);
         setIsLoading(true);
         try {
-            const response = await handleGoogleSignIn();
-            
-            if (response && response.data) {
-                const { idToken } = response.data;
-                await loginGoogleAPI(idToken);
-                navigation.replace('Home');
-            }
+            const googleResponse = await handleGoogleSignIn();
 
+            if (googleResponse?.data?.idToken) {
+                const { idToken } = googleResponse.data;
+
+                const backendResponse = await loginGoogleAPI(idToken);
+
+                if (backendResponse && backendResponse.token) {
+                    await loginGlobal(backendResponse.token);
+                }
+            }
         } catch (error) {
-            console.error("Erro capturado:", error);
+            console.error("Erro no login:", error);
         } finally {
             setIsLoading(false);
         }
@@ -49,8 +52,8 @@ function Login() {
         <View style={[
             styles.container,
             {
-                paddingTop: insets.top, 
-                paddingBottom: insets.bottom 
+                paddingTop: insets.top,
+                paddingBottom: insets.bottom
             }
         ]}>
             <StatusBar
