@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { colors } from '../theme/colors';
 import { configurarGoogle, handleGoogleSignIn } from '../services/googleAuthService';
 import {  loginGoogleAPI } from '../services/usersApi';
+import { getToken, removeToken } from '../utils/authStorage';
 
 function Login() {
     const { t } = useTranslation();
@@ -25,6 +26,8 @@ function Login() {
     }, []);
 
     const logarComGoogle = async () => {
+        const token = await getToken();
+        console.log('pegarToken',token);
         setIsLoading(true);
         try {
             const response = await handleGoogleSignIn();
