@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from './types';
+import { TabNavigator } from './TabNavigation';
 
 import { colors } from '../theme/colors';
 import Login from '../screens/Login';
-import Home from '../screens/Home';
 import { getToken } from '../utils/authStorage';
 import { useAppStore } from '../store/useAppStore'
 
@@ -42,7 +42,7 @@ export function AppNavigator() {
       {userToken == null ? (
         <Stack.Screen name="Login" component={Login} />
       ) : (
-        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="MainTabs" component={TabNavigator} />
       )}
     </Stack.Navigator>
   );

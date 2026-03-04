@@ -3,12 +3,12 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useAppStore } from '../store/useAppStore';
 import { colors } from '../theme/colors';
 
-function Home() {
+function FrequenciaScreen() {
   const logout = useAppStore((state) => state.logout);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.textoTitulo}>Assistente do Professor</Text>
+      <Text style={styles.textoTitulo}>Frequência Diária</Text>
       <Text style={styles.texto}>Bem-vindo!</Text>
 
       <TouchableOpacity
@@ -60,4 +60,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Home;
+export default FrequenciaScreen;
