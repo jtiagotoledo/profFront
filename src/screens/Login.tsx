@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, Image, ActivityIndicator, StatusBar, Platform } from "react-native";
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/types';
 import DeviceInfo from 'react-native-device-info';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -12,14 +9,12 @@ import { useTranslation } from 'react-i18next';
 import { colors } from '../theme/colors';
 import { configurarGoogle, handleGoogleSignIn } from '../services/googleAuthService';
 import { loginGoogleAPI } from '../services/usersApi';
-import { getToken, removeToken } from '../utils/authStorage';
 import { useAppStore } from '../store/useAppStore';
 
 function Login() {
     const { t } = useTranslation();
     const insets = useSafeAreaInsets();
     const versaoDoApp = DeviceInfo.getVersion();
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [isLoading, setIsLoading] = useState(false);
     const loginGlobal = useAppStore((state) => state.login);
 
