@@ -9,7 +9,7 @@ function ListaAlunosScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.textoTitulo}>Meus alunos</Text>
-      <Text style={styles.texto}>Bem-vindo!</Text>
+      <Text style={styles.texto}>Estamos em manutenção, voltamos em breve!</Text>
 
       <TouchableOpacity
         style={styles.botaoLogout}

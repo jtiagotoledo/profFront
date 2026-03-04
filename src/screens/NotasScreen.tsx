@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { useAppStore } from '../store/useAppStore';
 import { colors } from '../theme/colors';
 
@@ -9,14 +9,7 @@ function NotasScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.textoTitulo}>Lançar Notas</Text>
-      <Text style={styles.texto}>Bem-vindo!</Text>
-
-      <TouchableOpacity
-        style={styles.botaoLogout}
-        onPress={async () => await logout()}
-      >
-        <Text style={styles.textoBotao}>Sair do App</Text>
-      </TouchableOpacity>
+      <Text style={styles.texto}>Estamos em manutenção, voltamos em breve!</Text>
     </View>
   );
 }
