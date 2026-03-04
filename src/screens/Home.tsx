@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { useAppStore } from '../store/useAppStore'; 
+import { useAppStore } from '../store/useAppStore';
 import { colors } from '../theme/colors';
 
 function Home() {
@@ -11,12 +11,13 @@ function Home() {
       <Text style={styles.textoTitulo}>Assistente do Professor</Text>
       <Text style={styles.texto}>Bem-vindo!</Text>
 
-      <TouchableOpacity 
-        style={styles.botaoLogout} 
+      <TouchableOpacity
+        style={styles.botaoLogout}
         onPress={async () => await logout()}
       >
         <Text style={styles.textoBotao}>Sair do App</Text>
       </TouchableOpacity>
+
     </View>
   );
 }
@@ -41,12 +42,14 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   botaoLogout: {
-    backgroundColor: colors.danger, 
+    backgroundColor: colors.secondary,
     paddingVertical: 12,
     paddingHorizontal: 30,
+    marginBottom: 24
+    ,
     borderRadius: 8,
     elevation: 2,
-    shadowColor: colors.white, 
+    shadowColor: colors.white,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
