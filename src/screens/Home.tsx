@@ -17,7 +17,6 @@ function Home() {
       >
         <Text style={styles.textoBotao}>Sair do App</Text>
       </TouchableOpacity>
-
     </View>
   );
 }
