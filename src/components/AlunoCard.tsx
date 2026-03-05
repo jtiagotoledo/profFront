@@ -40,10 +40,8 @@ export const AlunoCard = ({ aluno }: AlunoProps) => {
           <Text style={styles.subtexto}>{aluno.frequencia}% de presença</Text>
         </View>
       </View>
-
       <View style={[styles.notaContainer, { borderColor: corNota }]}>
-        {/* aluno.media -> resolver */}
-        <Text style={[styles.textoNota, { color: corNota }]}>{aluno.numeroChamada.toFixed(1)}</Text>
+        <Text style={[styles.textoNota, { color: corNota }]}>{aluno.media.toFixed(1)}</Text>
       </View>
     </View>
   );
