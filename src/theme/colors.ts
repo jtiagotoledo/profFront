@@ -7,7 +7,8 @@ export const colors = {
   danger: '#FF4D4D',       
   
   background: '#F4F7FA',   
-  white: '#FFFFFF',        
+  white: '#FFFFFF',  
+  black: '#000000',      
   borderLight: '#E1E4E8',  
   
   darkText: '#2C333C',
