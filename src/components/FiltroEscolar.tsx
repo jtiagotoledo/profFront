@@ -6,10 +6,9 @@ import { colors } from '../theme/colors';
 
 export const FiltrosEscolar = () => {
   const { idAnoSelecionado, idClasseSelecionada, setAno, setClasse } = useAppStore();
-
   const { data: anos, isLoading: loadingAnos } = useAnos();
   const { data: classes, isLoading: loadingClasses } = useClasses(idAnoSelecionado);
-
+  console.log('anos',anos)
   return (
     <View style={styles.container}>
 
@@ -36,7 +35,7 @@ export const FiltrosEscolar = () => {
                   styles.chipText, 
                   idAnoSelecionado === item._id ? styles.chipTextAtivo : styles.chipTextInativo
                 ]}>
-                  {item.nome}
+                  {item.rotulo}
                 </Text>
               </TouchableOpacity>
             )}

@@ -4,7 +4,7 @@ import { colors } from '../theme/colors';
 
 interface AlunoProps {
   aluno: {
-    numero: number;
+    numeroChamada: number;
     nome: string;
     media: number;
     frequencia: number;
@@ -14,13 +14,14 @@ interface AlunoProps {
 export const AlunoCard = ({ aluno }: AlunoProps) => {
   const corNota = aluno.media >= 7 ? colors.success : aluno.media >= 5 ? colors.warning : colors.danger;
   const corFreq = aluno.frequencia >= 90 ? colors.success : aluno.frequencia >= 75 ? colors.warning : colors.danger;
-
+  console.log('aluno',aluno);
+  
   return (
     <View style={styles.card}>
 
       <View style={styles.infoContainer}>
         <View style={styles.badgeNumero}>
-          <Text style={styles.textoNumero}>{aluno.numero.toString().padStart(2, '0')}</Text>
+          <Text style={styles.textoNumero}>{aluno.numeroChamada.toString().padStart(2, '0')}</Text>
         </View>
         <View style={styles.nomeWrapper}>
           <Text style={styles.nome} numberOfLines={1}>{aluno.nome}</Text>
@@ -33,7 +34,8 @@ export const AlunoCard = ({ aluno }: AlunoProps) => {
       </View>
 
       <View style={[styles.notaContainer, { borderColor: corNota }]}>
-        <Text style={[styles.textoNota, { color: corNota }]}>{aluno.media.toFixed(1)}</Text>
+        {/* aluno.media -> resolver */}
+        <Text style={[styles.textoNota, { color: corNota }]}>{aluno.numeroChamada.toFixed(1)}</Text>
       </View>
     </View>
   );
