@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: colors.border,
+        borderColor: colors.borderLight,
     },
     botaoDisabled: {
         opacity: 0.6,
