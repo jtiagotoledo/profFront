@@ -8,24 +8,32 @@ interface AlunoProps {
     nome: string;
     media: number;
     frequencia: number;
+    ativo: string;
   };
 }
 
 export const AlunoCard = ({ aluno }: AlunoProps) => {
   const corNota = aluno.media >= 7 ? colors.success : aluno.media >= 5 ? colors.warning : colors.danger;
   const corFreq = aluno.frequencia >= 90 ? colors.success : aluno.frequencia >= 75 ? colors.warning : colors.danger;
-  console.log('aluno',aluno);
-  
-  return (
-    <View style={styles.card}>
+  console.log('aluno', aluno);
 
+  return (
+    <View
+      style={[
+        styles.card,
+        {
+          opacity: aluno.ativo ? 1 : 0.6,
+          backgroundColor: aluno.ativo ? colors.white : colors.bgInativo
+        }
+      ]}
+    >
       <View style={styles.infoContainer}>
         <View style={styles.badgeNumero}>
           <Text style={styles.textoNumero}>{aluno.numeroChamada.toString().padStart(2, '0')}</Text>
         </View>
         <View style={styles.nomeWrapper}>
           <Text style={styles.nome} numberOfLines={1}>{aluno.nome}</Text>
-          
+
           <View style={styles.trackFrequencia}>
             <View style={[styles.barraFrequencia, { width: `${aluno.frequencia}%`, backgroundColor: corFreq }]} />
           </View>
@@ -43,7 +51,6 @@ export const AlunoCard = ({ aluno }: AlunoProps) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,

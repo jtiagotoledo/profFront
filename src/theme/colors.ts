@@ -10,6 +10,7 @@ export const colors = {
   white: '#FFFFFF',  
   black: '#000000',      
   borderLight: '#E1E4E8',  
+  bgInativo: '#E1E4E8',  
   
   darkText: '#2C333C',
   mutedText: '#707781',   
