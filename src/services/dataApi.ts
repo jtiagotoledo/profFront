@@ -10,6 +10,16 @@ export const getAnosAPI = async () => {
     return response.data.data; 
 };
 
+export const atualizarAnoAPI = async (id: string, rotulo: string) => {
+  const response = await api.patch(`/anos/${id}`, { rotulo });
+  return response.data;
+};
+
+export const deletarAnoAPI = async (id: string) => {
+  const response = await api.delete(`/anos/${id}`);
+  return response.data;
+};
+
 export const criarClasseAPI = async (nome: string, anoLetivoId: string) => {
   const response = await api.post('/classes', { nome, anoLetivoId });
   return response.data;
@@ -20,6 +30,16 @@ export const getClassesPorAnoAPI = async (anoId: string) => {
     return response.data.data;
 };
 
+export const atualizarClasseAPI = async (id: string, nome: string) => {
+  const response = await api.patch(`/classes/${id}`, { nome });
+  return response.data;
+};
+
+export const deletarClasseAPI = async (id: string) => {
+  const response = await api.delete(`/classes/${id}`);
+  return response.data;
+};
+
 export const criarAlunoAPI = async (nome: string, numeroChamada: number, classeId: string) => {
   const response = await api.post('/alunos', { nome, numeroChamada, classeId });
   return response.data.data;
@@ -28,6 +48,16 @@ export const criarAlunoAPI = async (nome: string, numeroChamada: number, classeI
 export const getAlunosPorClasseAPI = async (classeId: string) => {
     const response = await api.get(`/alunos/classe/${classeId}`);
     return response.data.data;
+};
+
+export const atualizarAlunoAPI = async (id: string, dados: { nome?: string; numeroChamada?: number; ativo?: boolean }) => {
+  const response = await api.patch(`/alunos/${id}`, dados);
+  return response.data;
+};
+
+export const deletarAlunoAPI = async (id: string) => {
+  const response = await api.delete(`/alunos/${id}`);
+  return response.data;
 };
 
 export const updateNotaAPI = async (alunoId: string, dadosProva: { titulo: string, valor: number, peso: number }) => {
