@@ -23,11 +23,13 @@ export const FiltrosEscolar = () => {
   const [classeParaEditar, setClasseParaEditar] = useState<{ _id: string; nome: string } | null>(null);
 
   const handleLongPressAno = (ano: any) => {
+    setAno(ano._id);
     setAnoParaEditar(ano);
     setModalEditAnoVisible(true);
   };
 
   const handleLongPressClasse = (classe: any) => {
+    setClasse(classe._id);
     setClasseParaEditar(classe);
     setModalEditClasseVisible(true);
   };

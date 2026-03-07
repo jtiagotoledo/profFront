@@ -8,20 +8,31 @@ import { colors } from '../theme/colors';
 import { FiltrosEscolar } from '../components/FiltroEscolar';
 import { AlunoCard } from '../components/AlunoCard';
 import { ModalCadastroAluno } from '../modais/ModalCadastroAluno';
+import { ModalEditarAluno } from '../modais/ModalEditarAluno';
 
 function ListaAlunosScreen() {
   const { idClasseSelecionada } = useAppStore();
   const { data: alunos, isLoading, isError } = useAlunos(idClasseSelecionada);
-  const [modalAlunoVisible, setModalAlunoVisible] = useState(false);
+
+  const [modalCadastroVisible, setModalCadastroVisible] = useState(false);
+  const [modalEditarVisible, setModalEditarVisible] = useState(false);
+  const [alunoParaEditar, setAlunoParaEditar] = useState<any>(null);
+
+  const handleLongPressAluno = (aluno: any) => {
+    setAlunoParaEditar(aluno);
+    setModalEditarVisible(true);
+  };
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
+      
       <FiltrosEscolar />
 
       <View style={styles.content}>
         {!idClasseSelecionada ? (
           <View style={styles.center}>
+            <Icon name="account-search-outline" size={60} color={colors.borderLight} />
             <Text style={styles.emptyText}>Selecione uma classe para listar os alunos.</Text>
           </View>
         ) : isLoading ? (
@@ -31,35 +42,54 @@ function ListaAlunosScreen() {
           </View>
         ) : isError ? (
           <View style={styles.center}>
+            <Icon name="alert-circle-outline" size={50} color={colors.danger} />
             <Text style={[styles.emptyText, { color: colors.danger }]}>Erro ao carregar alunos.</Text>
           </View>
         ) : (
           <FlatList
             data={alunos}
             keyExtractor={(item) => item._id}
-            renderItem={({ item }) => <AlunoCard aluno={item} />}
             contentContainerStyle={styles.listContainer}
             showsVerticalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <TouchableOpacity 
+                onLongPress={() => handleLongPressAluno(item)}
+                delayLongPress={500}
+                activeOpacity={0.7}
+              >
+                <AlunoCard aluno={item} />
+              </TouchableOpacity>
+            )}
             ListEmptyComponent={
-              <Text style={styles.emptyText}>Nenhum aluno cadastrado nesta turma.</Text>
+              <View style={styles.center}>
+                <Text style={styles.emptyText}>Nenhum aluno cadastrado nesta turma.</Text>
+              </View>
             }
           />
         )}
       </View>
+
       <TouchableOpacity
-        style={[
-          styles.fab,
-          !idClasseSelecionada && { backgroundColor: colors.borderLight } 
-        ]}
-        onPress={() => idClasseSelecionada && setModalAlunoVisible(true)}
+        style={[styles.fab, !idClasseSelecionada && { backgroundColor: colors.borderLight }]}
+        onPress={() => idClasseSelecionada && setModalCadastroVisible(true)}
         disabled={!idClasseSelecionada}
       >
         <Icon name="account-plus" size={28} color={colors.white} />
       </TouchableOpacity>
+
       <ModalCadastroAluno
-        visible={modalAlunoVisible}
-        onClose={() => setModalAlunoVisible(false)}
+        visible={modalCadastroVisible}
+        onClose={() => setModalCadastroVisible(false)}
         idClasseSelecionada={idClasseSelecionada}
+      />
+
+      <ModalEditarAluno
+        visible={modalEditarVisible}
+        onClose={() => {
+          setModalEditarVisible(false);
+          setAlunoParaEditar(null);
+        }}
+        aluno={alunoParaEditar}
       />
     </View>
   );
@@ -75,19 +105,21 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 16,
-    paddingBottom: 30,
+    paddingBottom: 100,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 40,
+    marginTop: 50,
   },
   emptyText: {
     textAlign: 'center',
     color: colors.mutedText,
     fontSize: 14,
     lineHeight: 20,
+    marginTop: 8
   },
   fab: {
     position: 'absolute',
