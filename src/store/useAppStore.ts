@@ -9,8 +9,8 @@ interface AppState {
   setToken: (token: string | null) => void;
   login: (token: string) => Promise<void>;
   logout: () => Promise<void>;
-  setAno: (id: string) => void;
-  setClasse: (id: string) => void;
+  setAno: (id: string | null) => void;
+  setClasse: (id: string | null) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({

@@ -15,7 +15,6 @@ interface AlunoProps {
 export const AlunoCard = ({ aluno }: AlunoProps) => {
   const corNota = aluno.media >= 7 ? colors.success : aluno.media >= 5 ? colors.warning : colors.danger;
   const corFreq = aluno.frequencia >= 90 ? colors.success : aluno.frequencia >= 75 ? colors.warning : colors.danger;
-  console.log('aluno', aluno);
 
   return (
     <View

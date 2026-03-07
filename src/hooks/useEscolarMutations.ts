@@ -1,8 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { criarAnoAPI, criarClasseAPI, criarAlunoAPI, atualizarAnoAPI, deletarAnoAPI,  atualizarClasseAPI, deletarClasseAPI,  atualizarAlunoAPI, deletarAlunoAPI } from '../services/dataApi';
+import { useAppStore } from '../store/useAppStore';
 
 export const useCadastrosEscolares = () => {
     const queryClient = useQueryClient();
+    const { setAno, setClasse } = useAppStore();
 
     // --- MUTAÇÕES DE ANO ---
     const mutationAno = useMutation({
@@ -15,9 +17,16 @@ export const useCadastrosEscolares = () => {
     });
 
     const mutationDeletarAno = useMutation({
-        mutationFn: (id: string) => deletarAnoAPI(id),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['anos'] }),
-    });
+    mutationFn: (id: string) => deletarAnoAPI(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['anos'] });
+      setAno(null); 
+      setClasse(null); 
+    },
+    onError: (error: any) => {
+      console.error("Erro ao deletar ano:", error);
+    }
+  });
 
     // --- MUTAÇÕES DE CLASSE ---
     const mutationClasse = useMutation({

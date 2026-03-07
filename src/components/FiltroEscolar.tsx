@@ -1,29 +1,44 @@
 import React, { useState } from 'react';
 import { View, FlatList, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; 
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useAppStore } from '../store/useAppStore';
 import { useAnos, useClasses } from '../hooks/useEscolar';
-import { colors } from '../theme/colors'; 
+import { colors } from '../theme/colors';
 
 import { ModalCadastroAno } from '../modais/ModalCadastroAno';
 import { ModalCadastroClasse } from '../modais/ModalCadastroClasse';
+import { ModalEditarAno } from '../modais/ModalEditarAno';
+import { ModalEditarClasse } from '../modais/ModalEditarClasse'; 
 
 export const FiltrosEscolar = () => {
   const { idAnoSelecionado, idClasseSelecionada, setAno, setClasse } = useAppStore();
-  
+
   const { data: anos, isLoading: loadingAnos } = useAnos();
   const { data: classes, isLoading: loadingClasses } = useClasses(idAnoSelecionado);
 
   const [modalType, setModalType] = useState<'ano' | 'classe' | null>(null);
+  const [modalEditAnoVisible, setModalEditAnoVisible] = useState(false);
+  const [anoParaEditar, setAnoParaEditar] = useState<{ _id: string; rotulo: string } | null>(null);
+  const [modalEditClasseVisible, setModalEditClasseVisible] = useState(false);
+  const [classeParaEditar, setClasseParaEditar] = useState<{ _id: string; nome: string } | null>(null);
+
+  const handleLongPressAno = (ano: any) => {
+    setAnoParaEditar(ano);
+    setModalEditAnoVisible(true);
+  };
+
+  const handleLongPressClasse = (classe: any) => {
+    setClasseParaEditar(classe);
+    setModalEditClasseVisible(true);
+  };
 
   return (
     <View style={styles.container}>
-
       <View style={styles.section}>
         <View style={styles.headerRow}>
           <Text style={styles.label}>Ano Letivo</Text>
-          <TouchableOpacity 
-            onPress={() => setModalType('ano')} 
+          <TouchableOpacity
+            onPress={() => setModalType('ano')}
             style={styles.iconAdd}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
@@ -43,13 +58,15 @@ export const FiltrosEscolar = () => {
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => setAno(item._id)}
+                onLongPress={() => handleLongPressAno(item)}
+                delayLongPress={500}
                 style={[
-                  styles.chip, 
+                  styles.chip,
                   idAnoSelecionado === item._id ? styles.chipAtivo : styles.chipInativo
                 ]}
               >
                 <Text style={[
-                  styles.chipText, 
+                  styles.chipText,
                   idAnoSelecionado === item._id ? styles.chipTextAtivo : styles.chipTextInativo
                 ]}>
                   {item.rotulo}
@@ -64,8 +81,8 @@ export const FiltrosEscolar = () => {
         <View style={styles.section}>
           <View style={styles.headerRow}>
             <Text style={styles.label}>Minhas Turmas</Text>
-            <TouchableOpacity 
-              onPress={() => setModalType('classe')} 
+            <TouchableOpacity
+              onPress={() => setModalType('classe')}
               style={styles.iconAdd}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
@@ -85,13 +102,15 @@ export const FiltrosEscolar = () => {
               renderItem={({ item }) => (
                 <TouchableOpacity
                   onPress={() => setClasse(item._id)}
+                  onLongPress={() => handleLongPressClasse(item)}
+                  delayLongPress={500}
                   style={[
-                    styles.chipClasse, 
+                    styles.chipClasse,
                     idClasseSelecionada === item._id ? styles.chipAtivo : styles.chipInativo
                   ]}
                 >
                   <Text style={[
-                    styles.chipText, 
+                    styles.chipText,
                     idClasseSelecionada === item._id ? styles.chipTextAtivo : styles.chipTextInativo
                   ]}>
                     {item.nome}
@@ -103,15 +122,33 @@ export const FiltrosEscolar = () => {
         </View>
       )}
 
-      <ModalCadastroAno 
-        visible={modalType === 'ano'} 
-        onClose={() => setModalType(null)} 
-      />
-      
-      <ModalCadastroClasse 
-        visible={modalType === 'classe'} 
+      <ModalCadastroAno
+        visible={modalType === 'ano'}
         onClose={() => setModalType(null)}
-        idAnoSelecionado={idAnoSelecionado} 
+      />
+
+      <ModalCadastroClasse
+        visible={modalType === 'classe'}
+        onClose={() => setModalType(null)}
+        idAnoSelecionado={idAnoSelecionado}
+      />
+
+      <ModalEditarAno 
+        visible={modalEditAnoVisible}
+        onClose={() => {
+          setModalEditAnoVisible(false);
+          setAnoParaEditar(null);
+        }}
+        ano={anoParaEditar}
+      />
+
+      <ModalEditarClasse
+        visible={modalEditClasseVisible}
+        onClose={() => {
+          setModalEditClasseVisible(false);
+          setClasseParaEditar(null);
+        }}
+        classe={classeParaEditar}
       />
 
     </View>
@@ -119,14 +156,14 @@ export const FiltrosEscolar = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { 
-    backgroundColor: colors.white, 
-    paddingVertical: 12, 
-    borderBottomWidth: 1, 
-    borderBottomColor: colors.borderLight 
+  container: {
+    backgroundColor: colors.white,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderLight
   },
-  section: { 
-    marginBottom: 14 
+  section: {
+    marginBottom: 14
   },
   headerRow: {
     flexDirection: 'row',
@@ -134,10 +171,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     paddingLeft: 16,
   },
-  label: { 
-    fontSize: 11, 
-    fontWeight: '800', 
-    color: colors.mutedText, 
+  label: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: colors.mutedText,
     textTransform: 'uppercase',
     letterSpacing: 1
   },
@@ -145,12 +182,12 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     padding: 2,
   },
-  listPadding: { 
-    paddingHorizontal: 12 
+  listPadding: {
+    paddingHorizontal: 12
   },
-  loader: { 
-    marginLeft: 16, 
-    alignSelf: 'flex-start' 
+  loader: {
+    marginLeft: 16,
+    alignSelf: 'flex-start'
   },
   chip: {
     paddingHorizontal: 22,
@@ -167,11 +204,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   chipInativo: {
-    backgroundColor: colors.background, 
+    backgroundColor: colors.background,
     borderColor: colors.borderLight,
   },
   chipAtivo: {
-    backgroundColor: colors.primary, 
+    backgroundColor: colors.primary,
     borderColor: colors.primary,
     elevation: 3,
     shadowColor: colors.primary,
