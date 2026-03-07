@@ -10,13 +10,13 @@ export const useCadastrosEscolares = () => {
     });
 
     const mutationClasse = useMutation({
-        mutationFn: ({ nome, periodo, anoLetivoId }: { nome: string; periodo: string; anoLetivoId: string }) =>
-            criarClasseAPI(nome, periodo, anoLetivoId),
+    mutationFn: ({ nome, anoLetivoId }: { nome: string; anoLetivoId: string }) => 
+        criarClasseAPI(nome, anoLetivoId),
 
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['classes'] });
-        },
-    });
+    onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['classes'] });
+    },
+});
 
     const mutationAluno = useMutation({
     mutationFn: ({ nome, numeroChamada, classeId }: { nome: string; numeroChamada: number; classeId: string }) => 

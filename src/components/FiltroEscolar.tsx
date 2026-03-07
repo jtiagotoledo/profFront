@@ -1,19 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, FlatList, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; 
 import { useAppStore } from '../store/useAppStore';
 import { useAnos, useClasses } from '../hooks/useEscolar';
 import { colors } from '../theme/colors'; 
 
+import { ModalCadastroAno } from '../modais/ModalCadastroAno';
+import { ModalCadastroClasse } from '../modais/ModalCadastroClasse';
+
 export const FiltrosEscolar = () => {
   const { idAnoSelecionado, idClasseSelecionada, setAno, setClasse } = useAppStore();
+  
   const { data: anos, isLoading: loadingAnos } = useAnos();
   const { data: classes, isLoading: loadingClasses } = useClasses(idAnoSelecionado);
-  console.log('anos',anos)
+
+  const [modalType, setModalType] = useState<'ano' | 'classe' | null>(null);
+
   return (
     <View style={styles.container}>
 
       <View style={styles.section}>
-        <Text style={styles.label}>Ano Letivo</Text>
+        <View style={styles.headerRow}>
+          <Text style={styles.label}>Ano Letivo</Text>
+          <TouchableOpacity 
+            onPress={() => setModalType('ano')} 
+            style={styles.iconAdd}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Icon name="plus-circle-outline" size={20} color={colors.primary} />
+          </TouchableOpacity>
+        </View>
+
         {loadingAnos ? (
           <ActivityIndicator size="small" color={colors.secondary} style={styles.loader} />
         ) : (
@@ -45,7 +62,17 @@ export const FiltrosEscolar = () => {
 
       {idAnoSelecionado && (
         <View style={styles.section}>
-          <Text style={styles.label}>Minhas Turmas</Text>
+          <View style={styles.headerRow}>
+            <Text style={styles.label}>Minhas Turmas</Text>
+            <TouchableOpacity 
+              onPress={() => setModalType('classe')} 
+              style={styles.iconAdd}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Icon name="plus-circle-outline" size={20} color={colors.primary} />
+            </TouchableOpacity>
+          </View>
+
           {loadingClasses ? (
             <ActivityIndicator size="small" color={colors.secondary} style={styles.loader} />
           ) : (
@@ -75,6 +102,18 @@ export const FiltrosEscolar = () => {
           )}
         </View>
       )}
+
+      <ModalCadastroAno 
+        visible={modalType === 'ano'} 
+        onClose={() => setModalType(null)} 
+      />
+      
+      <ModalCadastroClasse 
+        visible={modalType === 'classe'} 
+        onClose={() => setModalType(null)}
+        idAnoSelecionado={idAnoSelecionado} 
+      />
+
     </View>
   );
 };
@@ -86,18 +125,33 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1, 
     borderBottomColor: colors.borderLight 
   },
-  section: { marginBottom: 14 },
+  section: { 
+    marginBottom: 14 
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    paddingLeft: 16,
+  },
   label: { 
     fontSize: 11, 
     fontWeight: '800', 
     color: colors.mutedText, 
-    marginLeft: 16, 
-    marginBottom: 8, 
     textTransform: 'uppercase',
     letterSpacing: 1
   },
-  listPadding: { paddingHorizontal: 12 },
-  loader: { marginLeft: 16, alignSelf: 'flex-start' },
+  iconAdd: {
+    marginLeft: 6,
+    padding: 2,
+  },
+  listPadding: { 
+    paddingHorizontal: 12 
+  },
+  loader: { 
+    marginLeft: 16, 
+    alignSelf: 'flex-start' 
+  },
   chip: {
     paddingHorizontal: 22,
     paddingVertical: 8,

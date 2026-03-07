@@ -10,8 +10,8 @@ export const getAnosAPI = async () => {
     return response.data.data; 
 };
 
-export const criarClasseAPI = async (nome: string, periodo: string, anoLetivoId: string) => {
-  const response = await api.post('/classes', { nome, periodo, anoLetivoId });
+export const criarClasseAPI = async (nome: string, anoLetivoId: string) => {
+  const response = await api.post('/classes', { nome, anoLetivoId });
   return response.data;
 };
 
