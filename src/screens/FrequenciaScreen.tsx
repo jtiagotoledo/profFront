@@ -24,7 +24,7 @@ interface Aluno {
   ativo: boolean;
 }
 
-export const FrequenciaScreen = () => {
+function FrequenciaScreen(){
   const { idClasseSelecionada } = useAppStore();
   const { data: alunos, isLoading } = useAlunos(idClasseSelecionada);
   const { mutationUpdateFrequencia } = useCadastrosEscolares();
@@ -221,3 +221,5 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
   infoText: { textAlign: 'center', color: colors.mutedText, marginTop: 12, fontSize: 14 },
 });
+
+export default FrequenciaScreen;
