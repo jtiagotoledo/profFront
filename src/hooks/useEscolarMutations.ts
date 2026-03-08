@@ -1,5 +1,11 @@
+import { Alert } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { criarAnoAPI, criarClasseAPI, criarAlunoAPI, atualizarAnoAPI, deletarAnoAPI,  atualizarClasseAPI, deletarClasseAPI,  atualizarAlunoAPI, deletarAlunoAPI } from '../services/dataApi';
+import {
+    criarAnoAPI, criarClasseAPI, criarAlunoAPI,
+    atualizarAnoAPI, deletarAnoAPI, atualizarClasseAPI,
+    deletarClasseAPI, atualizarAlunoAPI, deletarAlunoAPI,
+    updateFrequenciaAPI
+} from '../services/dataApi';
 import { useAppStore } from '../store/useAppStore';
 
 export const useCadastrosEscolares = () => {
@@ -17,16 +23,16 @@ export const useCadastrosEscolares = () => {
     });
 
     const mutationDeletarAno = useMutation({
-    mutationFn: (id: string) => deletarAnoAPI(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['anos'] });
-      setAno(null); 
-      setClasse(null); 
-    },
-    onError: (error: any) => {
-      console.error("Erro ao deletar ano:", error);
-    }
-  });
+        mutationFn: (id: string) => deletarAnoAPI(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['anos'] });
+            setAno(null);
+            setClasse(null);
+        },
+        onError: (error: any) => {
+            console.error("Erro ao deletar ano:", error);
+        }
+    });
 
     // --- MUTAÇÕES DE CLASSE ---
     const mutationClasse = useMutation({
@@ -66,15 +72,29 @@ export const useCadastrosEscolares = () => {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['alunos'] }),
     });
 
+    // --- MUTAÇÕES DE FREQUÊNCIA ---
+    const mutationUpdateFrequencia = useMutation({
+        mutationFn: ({ alunoId, data, presente }: { alunoId: string, data: string, presente: boolean }) =>
+            updateFrequenciaAPI(alunoId, data, presente),
+
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['alunos'] });
+        },
+        onError: () => {
+            Alert.alert("Erro", "Não foi possível registrar a frequência. Verifique sua conexão.");
+        }
+    });
+
     return {
-    mutationAno,
-    mutationAtualizarAno,
-    mutationDeletarAno,
-    mutationClasse,
-    mutationAtualizarClasse,
-    mutationDeletarClasse,
-    mutationAluno,
-    mutationAtualizarAluno,
-    mutationDeletarAluno,
-  };
+        mutationAno,
+        mutationAtualizarAno,
+        mutationDeletarAno,
+        mutationClasse,
+        mutationAtualizarClasse,
+        mutationDeletarClasse,
+        mutationAluno,
+        mutationAtualizarAluno,
+        mutationDeletarAluno,
+        mutationUpdateFrequencia
+    };
 };

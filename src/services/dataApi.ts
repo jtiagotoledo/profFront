@@ -2,12 +2,12 @@ import api from './api';
 
 export const criarAnoAPI = async (rotulo: string) => {
   const response = await api.post('/anos', { rotulo });
-  return response.data; 
+  return response.data;
 };
 
 export const getAnosAPI = async () => {
-    const response = await api.get('/anos');
-    return response.data.data; 
+  const response = await api.get('/anos');
+  return response.data.data;
 };
 
 export const atualizarAnoAPI = async (id: string, rotulo: string) => {
@@ -26,8 +26,8 @@ export const criarClasseAPI = async (nome: string, anoLetivoId: string) => {
 };
 
 export const getClassesPorAnoAPI = async (anoId: string) => {
-    const response = await api.get(`/classes/ano/${anoId}`);
-    return response.data.data;
+  const response = await api.get(`/classes/ano/${anoId}`);
+  return response.data.data;
 };
 
 export const atualizarClasseAPI = async (id: string, nome: string) => {
@@ -46,8 +46,8 @@ export const criarAlunoAPI = async (nome: string, numeroChamada: number, classeI
 };
 
 export const getAlunosPorClasseAPI = async (classeId: string) => {
-    const response = await api.get(`/alunos/classe/${classeId}`);
-    return response.data.data;
+  const response = await api.get(`/alunos/classe/${classeId}`);
+  return response.data.data;
 };
 
 export const atualizarAlunoAPI = async (id: string, dados: { nome?: string; numeroChamada?: number; ativo?: boolean }) => {
@@ -60,18 +60,18 @@ export const deletarAlunoAPI = async (id: string) => {
   return response.data;
 };
 
+export const updateFrequenciaAPI = async (alunoId: string, data: string, presente: boolean) => {
+
+  const response = await api.patch(`/alunos/${alunoId}/frequencia`, {
+    data: data,
+    presente: presente
+  });
+
+  return response.data;
+};
+
 export const updateNotaAPI = async (alunoId: string, dadosProva: { titulo: string, valor: number, peso: number }) => {
   const response = await api.patch(`/alunos/${alunoId}/nota`, dadosProva);
   return response.data;
 };
 
-export const updateFrequenciaAPI = async (alunoId: string, presente: boolean) => {
-  const dataHoje = new Date().toISOString().split('T')[0]; 
-
-  const response = await api.patch(`/alunos/${alunoId}/frequencia`, { 
-    data: dataHoje, 
-    presente: presente 
-  });
-  
-  return response.data;
-};
