@@ -70,6 +70,11 @@ export const updateFrequenciaAPI = async (alunoId: string, data: string, present
   return response.data;
 };
 
+export const confirmarPresencaTotalAPI = async (classeId: string, data: string) => {
+    const response = await api.patch('/classes/confirmar-dia', { classeId, data });
+    return response.data;
+};
+
 export const updateNotaAPI = async (alunoId: string, dadosProva: { titulo: string, valor: number, peso: number }) => {
   const response = await api.patch(`/alunos/${alunoId}/nota`, dadosProva);
   return response.data;

@@ -7,14 +7,18 @@ interface AlunoProps {
     numeroChamada: number;
     nome: string;
     media: number;
-    frequencia: number;
-    ativo: string;
+    frequenciaPorcentagem: number; // Nome atualizado conforme o Backend
+    ativo: boolean; // Alterado de string para boolean
   };
 }
 
 export const AlunoCard = ({ aluno }: AlunoProps) => {
-  const corNota = aluno.media >= 7 ? colors.success : aluno.media >= 5 ? colors.warning : colors.danger;
-  const corFreq = aluno.frequencia >= 90 ? colors.success : aluno.frequencia >= 75 ? colors.warning : colors.danger;
+  // Garantimos que o valor seja um número para não quebrar o layout
+  const freq = aluno.frequenciaPorcentagem ?? 100;
+  const nota = aluno.media ?? 0;
+
+  const corNota = nota >= 7 ? colors.success : nota >= 5 ? colors.warning : colors.danger;
+  const corFreq = freq >= 90 ? colors.success : freq >= 75 ? colors.warning : colors.danger;
 
   return (
     <View
@@ -22,7 +26,7 @@ export const AlunoCard = ({ aluno }: AlunoProps) => {
         styles.card,
         {
           opacity: aluno.ativo ? 1 : 0.6,
-          backgroundColor: aluno.ativo ? colors.white : colors.bgInativo
+          backgroundColor: aluno.ativo ? colors.white : '#f2f2f2' // Cor de fundo para inativos
         }
       ]}
     >
@@ -33,14 +37,23 @@ export const AlunoCard = ({ aluno }: AlunoProps) => {
         <View style={styles.nomeWrapper}>
           <Text style={styles.nome} numberOfLines={1}>{aluno.nome}</Text>
 
+          {/* Barra de progresso visual da frequência */}
           <View style={styles.trackFrequencia}>
-            <View style={[styles.barraFrequencia, { width: `${aluno.frequencia}%`, backgroundColor: corFreq }]} />
+            <View 
+              style={[
+                styles.barraFrequencia, 
+                { width: `${freq}%`, backgroundColor: corFreq }
+              ]} 
+            />
           </View>
-          <Text style={styles.subtexto}>{aluno.frequencia}% de presença</Text>
+          <Text style={styles.subtexto}>{freq}% de presença</Text>
         </View>
       </View>
+
       <View style={[styles.notaContainer, { borderColor: corNota }]}>
-        <Text style={[styles.textoNota, { color: corNota }]}>{aluno.media.toFixed(1)}</Text>
+        <Text style={[styles.textoNota, { color: corNota }]}>
+          {nota.toFixed(1)}
+        </Text>
       </View>
     </View>
   );
@@ -59,6 +72,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
+    marginHorizontal: 1, // Evita corte da sombra
   },
   infoContainer: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   badgeNumero: {
@@ -77,18 +91,19 @@ const styles = StyleSheet.create({
     height: 4,
     backgroundColor: '#E1E4E8',
     borderRadius: 2,
-    width: '80%',
+    width: '85%',
     overflow: 'hidden',
   },
   barraFrequencia: { height: '100%' },
   subtexto: { fontSize: 10, color: colors.mutedText, marginTop: 2 },
   notaContainer: {
-    width: 50,
-    height: 50,
+    width: 48,
+    height: 48,
     borderRadius: 10,
     borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#fff',
   },
-  textoNota: { fontSize: 18, fontWeight: 'bold' },
+  textoNota: { fontSize: 16, fontWeight: 'bold' },
 });

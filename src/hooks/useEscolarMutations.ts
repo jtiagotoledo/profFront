@@ -4,7 +4,7 @@ import {
     criarAnoAPI, criarClasseAPI, criarAlunoAPI,
     atualizarAnoAPI, deletarAnoAPI, atualizarClasseAPI,
     deletarClasseAPI, atualizarAlunoAPI, deletarAlunoAPI,
-    updateFrequenciaAPI
+    updateFrequenciaAPI, confirmarPresencaTotalAPI
 } from '../services/dataApi';
 import { useAppStore } from '../store/useAppStore';
 
@@ -79,9 +79,25 @@ export const useCadastrosEscolares = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['alunos'] });
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
         },
         onError: () => {
-            Alert.alert("Erro", "Não foi possível registrar a frequência. Verifique sua conexão.");
+            Alert.alert("Erro", "Não foi possível registrar a frequência.");
+        }
+    });
+
+    const mutationConfirmarDiaTotal = useMutation({
+        mutationFn: ({ classeId, data }: { classeId: string, data: string }) =>
+            confirmarPresencaTotalAPI(classeId, data),
+
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['alunos'] });
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+            Alert.alert("Sucesso", "Dia letivo registrado com sucesso!");
+        },
+        onError: (error: any) => {
+            const msg = error.response?.data?.message || "Erro ao confirmar dia letivo.";
+            Alert.alert("Erro", msg);
         }
     });
 
@@ -95,6 +111,7 @@ export const useCadastrosEscolares = () => {
         mutationAluno,
         mutationAtualizarAluno,
         mutationDeletarAluno,
-        mutationUpdateFrequencia
+        mutationUpdateFrequencia,
+        mutationConfirmarDiaTotal
     };
 };
