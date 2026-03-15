@@ -17,7 +17,7 @@ import { colors } from '../theme/colors';
 function FrequenciaScreen() {
   const { idClasseSelecionada, idAnoSelecionado } = useAppStore();
   
-  const { data: alunos } = useAlunos(idClasseSelecionada);
+  const { data: alunos, isLoading, isError } = useAlunos(idClasseSelecionada);
   const { data: classes } = useClasses(idAnoSelecionado);
   
   const { mutationUpdateFrequencia, mutationConfirmarDiaTotal } = useCadastrosEscolares();
@@ -139,15 +139,15 @@ function FrequenciaScreen() {
       </View>
 
       {idClasseSelecionada && (
-        <View style={styles.diarioContainer}>
+        <View key={dataFormatadaStr} style={styles.diarioContainer}>
           <View style={styles.diarioInputRow}>
             <Icon name="book-open-variant" size={20} color={colors.mutedText} style={{ marginTop: 8 }} />
             <TextInput
               style={styles.diarioInput}
-              placeholder="O que foi trabalhado hoje? (Salva na chamada)"
+              placeholder="O que foi trabalhado hoje?"
               placeholderTextColor={colors.mutedText}
               multiline
-              value={conteudoAula}
+              defaultValue={conteudoAula}
               onChangeText={setConteudoAula}
             />
           </View>
@@ -162,14 +162,31 @@ function FrequenciaScreen() {
         diasMarcados={classeAtual?.diasLetivos?.map((d: any) => typeof d === 'string' ? d : d.data) || []}
       />
 
-      <FlatList
-        data={alunos?.filter((a: any) => a.ativo)}
-        keyExtractor={(item) => item._id}
-        renderItem={renderAluno}
-        contentContainerStyle={styles.list}
-        keyboardShouldPersistTaps="always"
-        extraData={diaJaRegistrado} 
-      />
+      {!idClasseSelecionada ? (
+        <View style={styles.center}>
+          <Icon name="account-search-outline" size={60} color={colors.borderLight} />
+          <Text style={styles.emptyText}>Selecione uma classe para listar os alunos.</Text>
+        </View>
+      ) : isLoading ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={colors.secondary} />
+          <Text style={[styles.emptyText, { marginTop: 10 }]}>Carregando alunos...</Text>
+        </View>
+      ) : isError ? (
+        <View style={styles.center}>
+          <Icon name="alert-circle-outline" size={50} color={colors.danger} />
+          <Text style={[styles.emptyText, { color: colors.danger }]}>Erro ao carregar alunos.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={alunos?.filter((a: any) => a.ativo)}
+          keyExtractor={(item) => item._id}
+          renderItem={renderAluno}
+          contentContainerStyle={styles.list}
+          keyboardShouldPersistTaps="always"
+          extraData={diaJaRegistrado} 
+        />
+      )}
     </View>
   );
 }
@@ -197,6 +214,8 @@ const styles = StyleSheet.create({
   statusBtnText: { fontSize: 8, fontWeight: '900' },
   btnPresente: { backgroundColor: colors.secondary },
   btnAusente: { backgroundColor: colors.danger + '15', borderWidth: 1, borderColor: colors.danger },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingBottom: 100 },
+  emptyText: { textAlign: 'center', color: colors.mutedText, fontSize: 14, fontWeight: '500' },
 });
 
 export default FrequenciaScreen;
