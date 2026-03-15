@@ -60,18 +60,21 @@ export const deletarAlunoAPI = async (id: string) => {
   return response.data;
 };
 
-export const updateFrequenciaAPI = async (alunoId: string, data: string, presente: boolean) => {
-
+export const updateFrequenciaAPI = async (alunoId: string, data: string, presente: boolean, conteudo: string) => {
   const response = await api.patch(`/alunos/${alunoId}/frequencia`, {
-    data: data,
-    presente: presente
+    data: data, 
+    presente: presente, 
+    conteudo
   });
-
   return response.data;
 };
 
-export const confirmarPresencaTotalAPI = async (classeId: string, data: string) => {
-    const response = await api.patch('/classes/confirmar-dia', { classeId, data });
+export const confirmarPresencaTotalAPI = async (classeId: string, data: string, conteudo?: string) => {
+    const response = await api.patch('/classes/confirmar-dia', { 
+        classeId, 
+        data, 
+        conteudo: conteudo || "" 
+    });
     return response.data;
 };
 

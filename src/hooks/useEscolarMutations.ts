@@ -74,29 +74,24 @@ export const useCadastrosEscolares = () => {
 
     // --- MUTAÇÕES DE FREQUÊNCIA ---
     const mutationUpdateFrequencia = useMutation({
-        mutationFn: ({ alunoId, data, presente }: { alunoId: string, data: string, presente: boolean }) =>
-            updateFrequenciaAPI(alunoId, data, presente),
-
+        mutationFn: ({ alunoId, data, presente, conteudo }: any) =>
+            updateFrequenciaAPI(alunoId, data, presente, conteudo || ""), // <-- O CONTEÚDO PRECISA ESTAR AQUI
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['alunos'] });
-            queryClient.invalidateQueries({ queryKey: ['classes'] });
+            queryClient.invalidateQueries({ queryKey: ['classes'] }); // Isso atualiza o registro do dia na classe
         },
-        onError: () => {
-            Alert.alert("Erro", "Não foi possível registrar a frequência.");
-        }
     });
 
     const mutationConfirmarDiaTotal = useMutation({
-        mutationFn: ({ classeId, data }: { classeId: string, data: string }) =>
-            confirmarPresencaTotalAPI(classeId, data),
+        mutationFn: ({ classeId, data, conteudo }: { classeId: string, data: string, conteudo?: string }) =>
+            confirmarPresencaTotalAPI(classeId, data, conteudo),
 
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['alunos'] });
             queryClient.invalidateQueries({ queryKey: ['classes'] });
-            Alert.alert("Sucesso", "Dia letivo registrado com sucesso!");
         },
         onError: (error: any) => {
-            const msg = error.response?.data?.message || "Erro ao confirmar dia letivo.";
+            const msg = error.response?.data?.message || "Erro ao salvar registro.";
             Alert.alert("Erro", msg);
         }
     });
