@@ -4,7 +4,8 @@ import {
     criarAnoAPI, criarClasseAPI, criarAlunoAPI,
     atualizarAnoAPI, deletarAnoAPI, atualizarClasseAPI,
     deletarClasseAPI, atualizarAlunoAPI, deletarAlunoAPI,
-    updateFrequenciaAPI, confirmarPresencaTotalAPI
+    updateFrequenciaAPI, confirmarPresencaTotalAPI,
+    updateNotaAPI, lancarNotasEmLoteAPI, confirmarProvaAPI
 } from '../services/dataApi';
 import { useAppStore } from '../store/useAppStore';
 
@@ -96,6 +97,32 @@ export const useCadastrosEscolares = () => {
         }
     });
 
+    // --- MUTAÇÕES DE NOTAS ---
+    const mutationUpdateNota = useMutation({
+        mutationFn: ({ alunoId, data, valor }: { alunoId: string; data: string; valor: number }) =>
+            updateNotaAPI(alunoId, data, valor),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['alunos'] });
+        },
+    });
+
+    const mutationLancarNotasEmLote = useMutation({
+        mutationFn: ({ data, notas }: { data: string; notas: { alunoId: string; valor: number }[] }) =>
+            lancarNotasEmLoteAPI(data, notas),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['alunos'] });
+            Alert.alert("Sucesso", "Todas as notas foram salvas!");
+        },
+    });
+
+    const mutationConfirmarProva = useMutation({
+        mutationFn: ({ classeId, data, titulo }: { classeId: string; data: string; titulo: string }) =>
+            confirmarProvaAPI(classeId, data, titulo),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+        },
+    });
+
     return {
         mutationAno,
         mutationAtualizarAno,
@@ -107,6 +134,9 @@ export const useCadastrosEscolares = () => {
         mutationAtualizarAluno,
         mutationDeletarAluno,
         mutationUpdateFrequencia,
-        mutationConfirmarDiaTotal
+        mutationConfirmarDiaTotal,
+        mutationUpdateNota,
+        mutationLancarNotasEmLote,
+        mutationConfirmarProva
     };
 };

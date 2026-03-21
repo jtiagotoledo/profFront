@@ -78,8 +78,27 @@ export const confirmarPresencaTotalAPI = async (classeId: string, data: string, 
     return response.data;
 };
 
-export const updateNotaAPI = async (alunoId: string, dadosProva: { titulo: string, valor: number, peso: number }) => {
-  const response = await api.patch(`/alunos/${alunoId}/nota`, dadosProva);
+export const updateNotaAPI = async (alunoId: string, data: string, valor: number) => {
+  const response = await api.patch(`/alunos/${alunoId}/nota`, { 
+    data, 
+    valor 
+  });
   return response.data;
 };
 
+export const lancarNotasEmLoteAPI = async (data: string, notas: { alunoId: string, valor: number }[]) => {
+  const response = await api.post('/alunos/notas-em-lote', { 
+    data, 
+    notas 
+  });
+  return response.data;
+};
+
+export const confirmarProvaAPI = async (classeId: string, data: string, titulo: string) => {
+  const response = await api.patch('/classes/confirmar-prova', { 
+    classeId, 
+    data, 
+    titulo 
+  });
+  return response.data;
+};
