@@ -28,12 +28,16 @@ function Login() {
             const googleResponse = await handleGoogleSignIn();
 
             if (googleResponse?.data?.idToken) {
-                const { idToken } = googleResponse.data;
+                const { idToken, user } = googleResponse.data; // O user vem daqui!
 
                 const backendResponse = await loginGoogleAPI(idToken);
 
                 if (backendResponse && backendResponse.token) {
-                    await loginGlobal(backendResponse.token);
+                    await loginGlobal(backendResponse.token, {
+                        nome: user.name || "",
+                        email: user.email || "",
+                        foto: user.photo || ""
+                    });
                 }
             }
         } catch (error) {

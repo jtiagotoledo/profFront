@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import { RootStackParamList } from './types';
 import { TabNavigator } from './TabNavigation';
+import PerfilScreen from '../screens/PerfilScreen'; // <-- Importe a tela aqui
 
 import { colors } from '../theme/colors';
 import Login from '../screens/Login';
 import { getToken } from '../utils/authStorage';
-import { useAppStore } from '../store/useAppStore'
+import { useAppStore } from '../store/useAppStore';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -22,7 +24,7 @@ export function AppNavigator() {
       setIsLoading(false);
     };
     bootstrapAsync();
-  }, []);
+  }, [setToken]);
 
   if (isLoading) {
     return (
@@ -42,7 +44,22 @@ export function AppNavigator() {
       {userToken == null ? (
         <Stack.Screen name="Login" component={Login} />
       ) : (
-        <Stack.Screen name="MainTabs" component={TabNavigator} />
+        <>
+          <Stack.Screen name="MainTabs" component={TabNavigator} />
+          
+          <Stack.Screen 
+            name="Perfil" 
+            component={PerfilScreen} 
+            options={{ 
+              headerShown: true,
+              title: 'Meu Perfil',
+              headerTintColor: '#FFF', 
+              headerStyle: { backgroundColor: colors.primary },
+              headerTitleAlign: 'center',
+              animation: 'slide_from_right' 
+            }} 
+          />
+        </>
       )}
     </Stack.Navigator>
   );
@@ -54,8 +71,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.primary, 
-  },
-  stackContent: {
-    backgroundColor: colors.primary,
   },
 });
