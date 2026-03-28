@@ -10,21 +10,34 @@ import { colors } from '../theme/colors';
 import Login from '../screens/Login';
 import { getToken } from '../utils/authStorage';
 import { useAppStore } from '../store/useAppStore';
+import { getMeAPI } from '../services/usersApi';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function AppNavigator() {
-  const { userToken, setToken } = useAppStore();
+  const { userToken, setToken, setUser } = useAppStore();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const bootstrapAsync = async () => {
-      const res = await getToken();
-      setToken(res ?? null); 
+      console.log("🚀 1. Iniciando bootstrapAsync...");
+      const token = await getToken();
+console.log("🔍 2. Token recuperado do storage:", token ? "EXISTE" : "NULO");
+      if (token) {
+        setToken(token);
+        try {
+          console.log("📡 3. Chamando getMeAPI...");
+          const userData = await getMeAPI();
+          setUser(userData); 
+          console.log("✅ Perfil sincronizado no boot:", userData.nome);
+        } catch (e) {
+          console.log("Erro ao sincronizar ou token expirado.");
+        }
+      }
       setIsLoading(false);
     };
     bootstrapAsync();
-  }, [setToken]);
+  }, [setToken, setUser]);
 
   if (isLoading) {
     return (
@@ -46,18 +59,18 @@ export function AppNavigator() {
       ) : (
         <>
           <Stack.Screen name="MainTabs" component={TabNavigator} />
-          
-          <Stack.Screen 
-            name="Perfil" 
-            component={PerfilScreen} 
-            options={{ 
+
+          <Stack.Screen
+            name="Perfil"
+            component={PerfilScreen}
+            options={{
               headerShown: true,
               title: 'Meu Perfil',
-              headerTintColor: '#FFF', 
+              headerTintColor: '#FFF',
               headerStyle: { backgroundColor: colors.primary },
               headerTitleAlign: 'center',
-              animation: 'slide_from_right' 
-            }} 
+              animation: 'slide_from_right'
+            }}
           />
         </>
       )}
@@ -70,6 +83,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.primary, 
+    backgroundColor: colors.primary,
   },
 });

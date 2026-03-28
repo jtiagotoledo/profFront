@@ -22,6 +22,7 @@ interface AppState {
   logout: () => Promise<void>;
   setAno: (id: string | null) => void;
   setClasse: (id: string | null) => void;
+  setUser: (userData: UserData | null) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -31,6 +32,7 @@ export const useAppStore = create<AppState>((set) => ({
   idClasseSelecionada: null,
   appVersion: `${DeviceInfo.getVersion()} (${DeviceInfo.getBuildNumber()})`,
 
+  setUser: (userData) => set({ user: userData }),
   setToken: (token) => set({ userToken: token }),
 
   login: async (token, userData) => {
@@ -45,4 +47,14 @@ export const useAppStore = create<AppState>((set) => ({
 
   setAno: (id) => set({ idAnoSelecionado: id, idClasseSelecionada: null }),
   setClasse: (id) => set({ idClasseSelecionada: id }),
+
+  refreshUser: async () => {
+    try {
+      const { getMeAPI } = await import('../services/usersApi');
+      const updatedUser = await getMeAPI();
+      set({ user: updatedUser });
+    } catch (error) {
+      console.error("Erro ao sincronizar perfil:", error);
+    }
+  },
 }));

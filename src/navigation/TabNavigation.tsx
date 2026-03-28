@@ -15,8 +15,8 @@ const ProfileHeaderButton = ({ navigation, user }: any) => (
     onPress={() => navigation.navigate('Perfil')} 
     style={styles.headerButton}
   >
-    {user?.foto ? (
-      <Image source={{ uri: user.foto }} style={styles.avatarMini} />
+    {user?.fotoPerfil ? (
+      <Image source={{ uri: user.fotoPerfil }} style={styles.avatarMini} />
     ) : (
       <View style={styles.avatarPlaceholder}>
         <Text style={styles.avatarInitial}>{user?.nome?.charAt(0) || 'P'}</Text>
