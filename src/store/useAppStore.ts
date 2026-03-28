@@ -3,9 +3,11 @@ import DeviceInfo from 'react-native-device-info';
 import { saveToken as saveStorage, removeToken as removeStorage } from '../utils/authStorage';
 
 interface UserData {
+  _id: string; 
   nome: string;
   email: string;
-  foto?: string;
+  fotoPerfil?: string;
+  isPremium: boolean; 
 }
 
 interface AppState {

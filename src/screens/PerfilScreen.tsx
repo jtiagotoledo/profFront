@@ -10,17 +10,17 @@ export default function PerfilScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.logoSection}>
-        <Image 
-          source={require('../assets/logo.png')} 
-          style={styles.logo} 
-          resizeMode="contain" 
+        <Image
+          source={require('../assets/logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
         />
       </View>
 
       {/* CARD DO USUÁRIO */}
       <View style={styles.userCard}>
-        {user?.foto ? (
-          <Image source={{ uri: user.foto }} style={styles.avatarLarge} />
+        {user?.fotoPerfil ? (
+          <Image source={{ uri: user.fotoPerfil }} style={styles.avatarLarge} />
         ) : (
           <View style={styles.avatarPlaceholder}>
             <Text style={styles.avatarInitial}>{user?.nome?.charAt(0) || 'P'}</Text>
@@ -28,6 +28,12 @@ export default function PerfilScreen() {
         )}
         <Text style={styles.userName}>{user?.nome || 'Professor'}</Text>
         <Text style={styles.userEmail}>{user?.email}</Text>
+        {user?.isPremium && (
+          <View style={styles.premiumBadge}>
+            <Icon name="crown" size={16} color="#FFD700" />
+            <Text style={styles.premiumText}>Professor Premium</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.divider} />
@@ -72,12 +78,12 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
   },
   avatarLarge: { width: 100, height: 100, borderRadius: 50, marginBottom: 15 },
-  avatarPlaceholder: { 
-    width: 100, 
-    height: 100, 
-    borderRadius: 50, 
-    backgroundColor: colors.primary, 
-    justifyContent: 'center', 
+  avatarPlaceholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 15
   },
@@ -98,4 +104,19 @@ const styles = StyleSheet.create({
   footer: { marginTop: 40, alignItems: 'center' },
   versionLabel: { fontSize: 12, color: '#9CA3AF', fontWeight: '600' },
   versionNumber: { fontSize: 11, color: '#9CA3AF', marginTop: 2 },
+  premiumBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+    marginTop: 10,
+    gap: 5
+  },
+  premiumText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: 'bold',
+  }
 });

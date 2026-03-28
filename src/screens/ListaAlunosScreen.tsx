@@ -5,7 +5,6 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-// Importação para a v14.7.17
 import * as IAP from 'react-native-iap';
 
 import { useAppStore } from '../store/useAppStore';
@@ -24,27 +23,7 @@ function ListaAlunosScreen() {
   const [modalEditarVisible, setModalEditarVisible] = useState(false);
   const [alunoParaEditar, setAlunoParaEditar] = useState<any>(null);
 
-  const limparCompraAntiga = async () => {
-    try {
-      await IAP.initConnection();
-      // Pega as compras que você já tem
-      const purchases = await IAP.getAvailablePurchases();
-
-      if (purchases.length > 0) {
-        console.log("Limpando compra antiga...", purchases[0].purchaseToken);
-        // Isso avisa o Google: "Já usei esse item, pode me deixar comprar de novo"
-        await IAP.consumePurchaseAndroid(purchases[0].purchaseToken);
-        Alert.alert("Sucesso", "Compra antiga limpa! Agora você pode clicar em comprar de novo.");
-      } else {
-        Alert.alert("Aviso", "Nenhuma compra encontrada para limpar.");
-      }
-    } catch (err) {
-      console.log("Erro ao limpar:", err);
-    }
-  };
-  // --- CONFIGURAÇÃO DO LISTENER (O SEGREDO DO TOKEN) ---
   useEffect(() => {
-    // Esse listener "escuta" o Google Play e pega o token assim que você confirma a compra
     const purchaseUpdateSubscription = IAP.purchaseUpdatedListener((purchase: any) => {
       const token = purchase.purchaseToken;
       if (token) {
@@ -56,7 +35,6 @@ function ListaAlunosScreen() {
 
         Alert.alert("Sucesso!", "Token gerado no console do VS Code!");
 
-        // Finaliza a transação para o Google não estornar o dinheiro (ou o teste)
         IAP.finishTransaction({ purchase });
       }
     });
@@ -65,7 +43,6 @@ function ListaAlunosScreen() {
       console.log('Erro no Listener de Compra:', error);
     });
 
-    // Limpa os listeners quando você sai da tela
     return () => {
       if (purchaseUpdateSubscription) purchaseUpdateSubscription.remove();
       if (purchaseErrorSubscription) purchaseErrorSubscription.remove();
@@ -81,18 +58,14 @@ function ListaAlunosScreen() {
     try {
       console.log("--- INICIANDO CAPTURA (V14.7.17) ---");
 
-      // 1. Inicializa conexão
       await IAP.initConnection();
 
-      // 2. Busca o produto para validar
       const products = await IAP.fetchProducts({ skus: ['ilimitado'] });
       console.log("Produtos na loja:", products);
 
       if (products && products.length > 0) {
         console.log("Solicitando janela de compra...");
 
-        // 3. Solicita a compra no formato correto da v14
-        // O await aqui pode retornar vazio, mas o Listener lá em cima vai pegar o token!
         await (IAP as any).requestPurchase({
           request: {
             google: {

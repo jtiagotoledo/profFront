@@ -28,16 +28,19 @@ function Login() {
             const googleResponse = await handleGoogleSignIn();
 
             if (googleResponse?.data?.idToken) {
-                const { idToken, user } = googleResponse.data; // O user vem daqui!
+                const { idToken } = googleResponse.data;
 
                 const backendResponse = await loginGoogleAPI(idToken);
 
+                // --- ADICIONE ESTAS LINHAS AQUI ---
+                console.log("========================================");
+                console.log("RESPOSTA DO MEU BACKEND:");
+                console.log("Usuário:", backendResponse.user.nome);
+                console.log("Status Premium:", backendResponse.user.isPremium); // O segredo está aqui!
+                console.log("========================================");
+                // ---------------------------------
                 if (backendResponse && backendResponse.token) {
-                    await loginGlobal(backendResponse.token, {
-                        nome: user.name || "",
-                        email: user.email || "",
-                        foto: user.photo || ""
-                    });
+                    await loginGlobal(backendResponse.token, backendResponse.user);
                 }
             }
         } catch (error) {
@@ -127,9 +130,9 @@ const styles = StyleSheet.create({
         lineHeight: 24,
     },
     botaoGoogle: {
-        backgroundColor: colors.secondary, 
+        backgroundColor: colors.secondary,
         height: 56,
-        borderRadius: 12, 
+        borderRadius: 12,
         width: '100%',
         justifyContent: 'center',
         alignItems: 'center',
