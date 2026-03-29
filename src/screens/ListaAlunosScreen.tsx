@@ -13,18 +13,31 @@ import { AlunoCard } from '../components/AlunoCard';
 import { ModalCadastroAluno } from '../modais/ModalCadastroAluno';
 import { ModalEditarAluno } from '../modais/ModalEditarAluno';
 import { useIAPManager } from '../hooks/useIAPManager';
+import { ModalUpgrade } from '../modais/ModalUpgrade';
 
 function ListaAlunosScreen() {
-  const { idClasseSelecionada } = useAppStore();
+  const { idClasseSelecionada, user } = useAppStore();
   const { data: alunos, isLoading, isError } = useAlunos(idClasseSelecionada);
   const { comprarIlimitado } = useIAPManager();
   const [modalCadastroVisible, setModalCadastroVisible] = useState(false);
   const [modalEditarVisible, setModalEditarVisible] = useState(false);
+  const [modalUpgradeVisible, setModalUpgradeVisible] = useState(false);
   const [alunoParaEditar, setAlunoParaEditar] = useState<any>(null);
 
   const handleLongPressAluno = (aluno: any) => {
     setAlunoParaEditar(aluno);
     setModalEditarVisible(true);
+  };
+
+  const handlePressFAB = () => {
+    const isPremium = user?.isPremium;
+    const totalAlunos = alunos?.length || 0;
+
+    if (!isPremium && totalAlunos >= 10) {
+      setModalUpgradeVisible(true); 
+    } else {
+      setModalCadastroVisible(true); 
+    }
   };
 
   return (
@@ -69,16 +82,29 @@ function ListaAlunosScreen() {
 
       <TouchableOpacity
         style={[styles.fab, !idClasseSelecionada && { backgroundColor: colors.borderLight }]}
-        onPress={comprarIlimitado}
+        onPress={handlePressFAB}
         disabled={!idClasseSelecionada}
       >
-        <Icon name="account-plus" size={28} color={colors.white} />
+        <Icon 
+          name={(!user?.isPremium && (alunos?.length || 0) >= 10) ? "lock" : "account-plus"} 
+          size={28} 
+          color={colors.white} 
+        />
       </TouchableOpacity>
 
       <ModalCadastroAluno
         visible={modalCadastroVisible}
         onClose={() => setModalCadastroVisible(false)}
         idClasseSelecionada={idClasseSelecionada}
+      />
+
+      <ModalUpgrade 
+        visible={modalUpgradeVisible}
+        onClose={() => setModalUpgradeVisible(false)}
+        onUpgrade={() => {
+          setModalUpgradeVisible(false);
+          comprarIlimitado(); 
+        }}
       />
 
       <ModalEditarAluno

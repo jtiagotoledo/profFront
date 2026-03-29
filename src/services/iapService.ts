@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 
 const skus = Platform.select({
   android: ['ilimitado'],
-  ios: ['ilimitado_ios'], 
+  ios: ['ilimitado_ios'],
 }) as string[];
 
 export const iapService = {
@@ -41,11 +41,34 @@ export const iapService = {
     }
   },
 
+  getProductPrice: async (): Promise<string | null> => {
+    try {
+      const products = await IAP.fetchProducts({ skus });
+
+      if (products && products.length > 0) {
+        const product = products[0];
+
+        const price =
+          (product as any).localizedPrice ||
+          (product as any).oneTimePurchaseOfferDetails?.formattedPrice ||
+          (product as any).price ||
+          null;
+
+        console.log("💰 Preço detectado:", price);
+        return price;
+      }
+      return null;
+    } catch (err) {
+      console.error("IAP: Erro ao buscar preço", err);
+      return null;
+    }
+  },
+
   limparComprasTestes: async () => {
     try {
       await IAP.initConnection();
       const purchases = await IAP.getAvailablePurchases();
-      
+
       if (purchases.length > 0) {
         for (const purchase of purchases) {
           await IAP.finishTransaction({ purchase, isConsumable: true });
