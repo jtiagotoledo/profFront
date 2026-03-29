@@ -39,5 +39,21 @@ export const iapService = {
         throw err;
       }
     }
+  },
+
+  limparComprasTestes: async () => {
+    try {
+      await IAP.initConnection();
+      const purchases = await IAP.getAvailablePurchases();
+      
+      if (purchases.length > 0) {
+        for (const purchase of purchases) {
+          await IAP.finishTransaction({ purchase, isConsumable: true });
+        }
+        console.log("✅ Compras limpas! Tente comprar novamente.");
+      }
+    } catch (err) {
+      console.error("Erro ao limpar compras", err);
+    }
   }
 };

@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View, FlatList, Text, StyleSheet, ActivityIndicator,
-  StatusBar, TouchableOpacity, Alert
+  StatusBar, TouchableOpacity
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-
-import * as IAP from 'react-native-iap';
 
 import { useAppStore } from '../store/useAppStore';
 import { useAlunos } from '../hooks/useEscolar';
@@ -14,76 +12,19 @@ import { FiltrosEscolar } from '../components/FiltroEscolar';
 import { AlunoCard } from '../components/AlunoCard';
 import { ModalCadastroAluno } from '../modais/ModalCadastroAluno';
 import { ModalEditarAluno } from '../modais/ModalEditarAluno';
+import { useIAPManager } from '../hooks/useIAPManager';
 
 function ListaAlunosScreen() {
   const { idClasseSelecionada } = useAppStore();
   const { data: alunos, isLoading, isError } = useAlunos(idClasseSelecionada);
-
+  const { comprarIlimitado } = useIAPManager();
   const [modalCadastroVisible, setModalCadastroVisible] = useState(false);
   const [modalEditarVisible, setModalEditarVisible] = useState(false);
   const [alunoParaEditar, setAlunoParaEditar] = useState<any>(null);
 
-  useEffect(() => {
-    const purchaseUpdateSubscription = IAP.purchaseUpdatedListener((purchase: any) => {
-      const token = purchase.purchaseToken;
-      if (token) {
-        console.log("========================================");
-        console.log("TOKEN CAPTURADO PELO LISTENER:");
-        console.log(token);
-        console.log("DADOS DA COMPRA:", purchase);
-        console.log("========================================");
-
-        Alert.alert("Sucesso!", "Token gerado no console do VS Code!");
-
-        IAP.finishTransaction({ purchase });
-      }
-    });
-
-    const purchaseErrorSubscription = IAP.purchaseErrorListener((error) => {
-      console.log('Erro no Listener de Compra:', error);
-    });
-
-    return () => {
-      if (purchaseUpdateSubscription) purchaseUpdateSubscription.remove();
-      if (purchaseErrorSubscription) purchaseErrorSubscription.remove();
-    };
-  }, []);
-
   const handleLongPressAluno = (aluno: any) => {
     setAlunoParaEditar(aluno);
     setModalEditarVisible(true);
-  };
-
-  const capturarTokenDeTeste = async () => {
-    try {
-      console.log("--- INICIANDO CAPTURA (V14.7.17) ---");
-
-      await IAP.initConnection();
-
-      const products = await IAP.fetchProducts({ skus: ['ilimitado'] });
-      console.log("Produtos na loja:", products);
-
-      if (products && products.length > 0) {
-        console.log("Solicitando janela de compra...");
-
-        await (IAP as any).requestPurchase({
-          request: {
-            google: {
-              skus: ['ilimitado']
-            }
-          },
-          type: 'in-app'
-        });
-
-      } else {
-        Alert.alert("Erro", "Produto 'ilimitado' não encontrado na Play Store.");
-      }
-    } catch (err: any) {
-      console.log("Erro no fluxo IAP:", err);
-      if (err.code !== 'E_USER_CANCELLED') {
-        Alert.alert("Erro", err.message);
-      }
-    }
   };
 
   return (
@@ -128,7 +69,7 @@ function ListaAlunosScreen() {
 
       <TouchableOpacity
         style={[styles.fab, !idClasseSelecionada && { backgroundColor: colors.borderLight }]}
-        onPress={capturarTokenDeTeste}
+        onPress={comprarIlimitado}
         disabled={!idClasseSelecionada}
       >
         <Icon name="account-plus" size={28} color={colors.white} />
