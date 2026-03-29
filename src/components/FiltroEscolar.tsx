@@ -10,17 +10,42 @@ import { ModalCadastroClasse } from '../modais/ModalCadastroClasse';
 import { ModalEditarAno } from '../modais/ModalEditarAno';
 import { ModalEditarClasse } from '../modais/ModalEditarClasse'; 
 
+import { ModalUpgrade } from '../modais/ModalUpgrade';
+import { useIAPManager } from '../hooks/useIAPManager';
+
 export const FiltrosEscolar = () => {
-  const { idAnoSelecionado, idClasseSelecionada, setAno, setClasse } = useAppStore();
+  const { idAnoSelecionado, idClasseSelecionada, setAno, setClasse, user } = useAppStore();
+  const { comprarIlimitado } = useIAPManager();
 
   const { data: anos, isLoading: loadingAnos } = useAnos();
   const { data: classes, isLoading: loadingClasses } = useClasses(idAnoSelecionado);
 
   const [modalType, setModalType] = useState<'ano' | 'classe' | null>(null);
+  const [modalUpgradeVisible, setModalUpgradeVisible] = useState(false);
+  
   const [modalEditAnoVisible, setModalEditAnoVisible] = useState(false);
   const [anoParaEditar, setAnoParaEditar] = useState<{ _id: string; rotulo: string } | null>(null);
+  
   const [modalEditClasseVisible, setModalEditClasseVisible] = useState(false);
   const [classeParaEditar, setClasseParaEditar] = useState<{ _id: string; nome: string } | null>(null);
+
+  const isPremium = user?.isPremium;
+
+  const handlePressAddAno = () => {
+    if (!isPremium && (anos?.length || 0) >= 1) {
+      setModalUpgradeVisible(true);
+    } else {
+      setModalType('ano');
+    }
+  };
+
+  const handlePressAddClasse = () => {
+    if (!isPremium && (classes?.length || 0) >= 1) {
+      setModalUpgradeVisible(true);
+    } else {
+      setModalType('classe');
+    }
+  };
 
   const handleLongPressAno = (ano: any) => {
     setAno(ano._id);
@@ -36,15 +61,21 @@ export const FiltrosEscolar = () => {
 
   return (
     <View style={styles.container}>
+      
+      {/* SEÇÃO: ANO LETIVO */}
       <View style={styles.section}>
         <View style={styles.headerRow}>
           <Text style={styles.label}>Ano Letivo</Text>
           <TouchableOpacity
-            onPress={() => setModalType('ano')}
+            onPress={handlePressAddAno}
             style={styles.iconAdd}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
           >
-            <Icon name="plus-circle-outline" size={20} color={colors.primary} />
+            <Icon 
+              name={(!isPremium && (anos?.length || 0) >= 1) ? "lock" : "plus-circle-outline"} 
+              size={20} 
+              color={colors.primary} 
+            />
           </TouchableOpacity>
         </View>
 
@@ -79,16 +110,21 @@ export const FiltrosEscolar = () => {
         )}
       </View>
 
+      {/* SEÇÃO: MINHAS TURMAS (Só aparece se houver ano selecionado) */}
       {idAnoSelecionado && (
         <View style={styles.section}>
           <View style={styles.headerRow}>
             <Text style={styles.label}>Minhas Turmas</Text>
             <TouchableOpacity
-              onPress={() => setModalType('classe')}
+              onPress={handlePressAddClasse}
               style={styles.iconAdd}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
             >
-              <Icon name="plus-circle-outline" size={20} color={colors.primary} />
+              <Icon 
+                name={(!isPremium && (classes?.length || 0) >= 1) ? "lock" : "plus-circle-outline"} 
+                size={20} 
+                color={colors.primary} 
+              />
             </TouchableOpacity>
           </View>
 
@@ -124,35 +160,38 @@ export const FiltrosEscolar = () => {
         </View>
       )}
 
-      <ModalCadastroAno
-        visible={modalType === 'ano'}
-        onClose={() => setModalType(null)}
+      {/* --- MODAIS DE CADASTRO --- */}
+      <ModalCadastroAno 
+        visible={modalType === 'ano'} 
+        onClose={() => setModalType(null)} 
+      />
+      <ModalCadastroClasse 
+        visible={modalType === 'classe'} 
+        onClose={() => setModalType(null)} 
+        idAnoSelecionado={idAnoSelecionado} 
       />
 
-      <ModalCadastroClasse
-        visible={modalType === 'classe'}
-        onClose={() => setModalType(null)}
-        idAnoSelecionado={idAnoSelecionado}
-      />
-
+      {/* --- MODAIS DE EDIÇÃO --- */}
       <ModalEditarAno 
-        visible={modalEditAnoVisible}
-        onClose={() => {
-          setModalEditAnoVisible(false);
-          setAnoParaEditar(null);
-        }}
-        ano={anoParaEditar}
+        visible={modalEditAnoVisible} 
+        onClose={() => { setModalEditAnoVisible(false); setAnoParaEditar(null); }} 
+        ano={anoParaEditar} 
+      />
+      <ModalEditarClasse 
+        visible={modalEditClasseVisible} 
+        onClose={() => { setModalEditClasseVisible(false); setClasseParaEditar(null); }} 
+        classe={classeParaEditar} 
       />
 
-      <ModalEditarClasse
-        visible={modalEditClasseVisible}
-        onClose={() => {
-          setModalEditClasseVisible(false);
-          setClasseParaEditar(null);
+      {/* --- MODAL DE UPGRADE (PREMIUM) --- */}
+      <ModalUpgrade 
+        visible={modalUpgradeVisible} 
+        onClose={() => setModalUpgradeVisible(false)}
+        onUpgrade={() => {
+          setModalUpgradeVisible(false);
+          comprarIlimitado();
         }}
-        classe={classeParaEditar}
       />
-
     </View>
   );
 };
@@ -164,9 +203,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.borderLight
   },
-  section: {
-    marginBottom: 14
-  },
+  section: { marginBottom: 14 },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -180,17 +217,9 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 1
   },
-  iconAdd: {
-    marginLeft: 6,
-    padding: 2,
-  },
-  listPadding: {
-    paddingHorizontal: 12
-  },
-  loader: {
-    marginLeft: 16,
-    alignSelf: 'flex-start'
-  },
+  iconAdd: { marginLeft: 6, padding: 2 },
+  listPadding: { paddingHorizontal: 12 },
+  loader: { marginLeft: 16, alignSelf: 'flex-start' },
   chip: {
     paddingHorizontal: 22,
     paddingVertical: 8,
@@ -218,14 +247,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 2,
   },
-  chipText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  chipTextInativo: {
-    color: colors.mutedText,
-  },
-  chipTextAtivo: {
-    color: colors.white,
-  },
+  chipText: { fontSize: 14, fontWeight: '600' },
+  chipTextInativo: { color: colors.mutedText },
+  chipTextAtivo: { color: colors.white },
 });
