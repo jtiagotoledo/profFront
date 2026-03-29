@@ -20,16 +20,12 @@ export function AppNavigator() {
 
   useEffect(() => {
     const bootstrapAsync = async () => {
-      console.log("🚀 1. Iniciando bootstrapAsync...");
       const token = await getToken();
-console.log("🔍 2. Token recuperado do storage:", token ? "EXISTE" : "NULO");
       if (token) {
         setToken(token);
         try {
-          console.log("📡 3. Chamando getMeAPI...");
           const userData = await getMeAPI();
-          setUser(userData); 
-          console.log("✅ Perfil sincronizado no boot:", userData.nome);
+          setUser(userData);
         } catch (e) {
           console.log("Erro ao sincronizar ou token expirado.");
         }

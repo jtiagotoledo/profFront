@@ -23,6 +23,7 @@ interface AppState {
   setAno: (id: string | null) => void;
   setClasse: (id: string | null) => void;
   setUser: (userData: UserData | null) => void;
+  refreshUser: () => Promise<void>;
 }
 
 export const useAppStore = create<AppState>((set) => ({
