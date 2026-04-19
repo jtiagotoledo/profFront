@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { RootStackParamList } from './types';
 import { TabNavigator } from './TabNavigation';
-import PerfilScreen from '../screens/PerfilScreen'; // <-- Importe a tela aqui
+import PerfilScreen from '../screens/PerfilScreen';
 
 import { colors } from '../theme/colors';
 import Login from '../screens/Login';
@@ -17,6 +18,8 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export function AppNavigator() {
   const { userToken, setToken, setUser } = useAppStore();
   const [isLoading, setIsLoading] = useState(true);
+  
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     const bootstrapAsync = async () => {
@@ -27,7 +30,7 @@ export function AppNavigator() {
           const userData = await getMeAPI();
           setUser(userData);
         } catch (e) {
-          console.log("Erro ao sincronizar ou token expirado.");
+          console.log("Erro ao sincronizar ou token expirado."+e);
         }
       }
       setIsLoading(false);
@@ -47,7 +50,10 @@ export function AppNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: colors.primary }
+        contentStyle: { 
+          backgroundColor: colors.white, 
+          paddingBottom: insets.bottom,
+        }
       }}
     >
       {userToken == null ? (
@@ -65,7 +71,7 @@ export function AppNavigator() {
               headerTintColor: '#FFF',
               headerStyle: { backgroundColor: colors.primary },
               headerTitleAlign: 'center',
-              animation: 'slide_from_right'
+              animation: 'slide_from_right',
             }}
           />
         </>
