@@ -1,18 +1,19 @@
 import React, { useMemo } from 'react';
 import { TouchableOpacity, Image, StyleSheet, View, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/Feather'; 
+import Icon from 'react-native-vector-icons/Feather';
 
 import ListaAlunosScreen from '../screens/ListaAlunosScreen';
 import FrequenciaScreen from '../screens/FrequenciaScreen';
 import NotasScreen from '../screens/NotasScreen';
+import MapaSalaScreen from '../screens/MapaSalaScreen';
 import { useAppStore } from '../store/useAppStore';
 
 const Tab = createBottomTabNavigator();
 
 const ProfileHeaderButton = ({ navigation, user }: any) => (
-  <TouchableOpacity 
-    onPress={() => navigation.navigate('Perfil')} 
+  <TouchableOpacity
+    onPress={() => navigation.navigate('Perfil')}
     style={styles.headerButton}
   >
     {user?.fotoPerfil ? (
@@ -47,28 +48,36 @@ export function TabNavigator({ navigation }: any) {
         headerRight: headerRightComponent,
       }}
     >
-      <Tab.Screen 
-        name="Alunos" 
-        component={ListaAlunosScreen} 
-        options={{ 
+      <Tab.Screen
+        name="Alunos"
+        component={ListaAlunosScreen}
+        options={{
           title: 'Meus Alunos',
-          tabBarIcon: makeIcon('users') 
+          tabBarIcon: makeIcon('users')
         }}
       />
-      <Tab.Screen 
-        name="Chamada" 
-        component={FrequenciaScreen} 
-        options={{ 
+      <Tab.Screen
+        name="Chamada"
+        component={FrequenciaScreen}
+        options={{
           title: 'Frequência Diária',
           tabBarIcon: makeIcon('check-square')
         }}
       />
-      <Tab.Screen 
-        name="Notas" 
-        component={NotasScreen} 
-        options={{ 
+      <Tab.Screen
+        name="Notas"
+        component={NotasScreen}
+        options={{
           title: 'Lançar Notas',
           tabBarIcon: makeIcon('edit-3')
+        }}
+      />
+      <Tab.Screen
+        name="Mapa"
+        component={MapaSalaScreen}
+        options={{
+          title: 'Mapa de Sala',
+          tabBarIcon: makeIcon('grid') 
         }}
       />
     </Tab.Navigator>

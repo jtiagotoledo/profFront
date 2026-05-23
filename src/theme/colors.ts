@@ -8,10 +8,12 @@ export const colors = {
   
   background: '#F4F7FA',   
   white: '#FFFFFF',  
+  surface: '#FFFFFF',
   black: '#000000',      
   borderLight: '#E1E4E8',  
   bgInativo: '#E1E4E8',  
   
+  text: '#2C333C',
   darkText: '#2C333C',
   mutedText: '#707781',   
   lightText: '#FFFFFF',
