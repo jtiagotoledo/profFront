@@ -5,7 +5,8 @@ import {
     atualizarAnoAPI, deletarAnoAPI, atualizarClasseAPI,
     deletarClasseAPI, atualizarAlunoAPI, deletarAlunoAPI,
     updateFrequenciaAPI, confirmarPresencaTotalAPI,
-    updateNotaAPI, lancarNotasEmLoteAPI, confirmarProvaAPI
+    updateNotaAPI, lancarNotasEmLoteAPI, confirmarProvaAPI,
+    salvarMapaSalaAPI,
 } from '../services/dataApi';
 import { useAppStore } from '../store/useAppStore';
 
@@ -52,6 +53,15 @@ export const useCadastrosEscolares = () => {
     const mutationDeletarClasse = useMutation({
         mutationFn: (id: string) => deletarClasseAPI(id),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classes'] }),
+    });
+
+    // --- MUTAÇÕES DE MAPA DE SALA ---
+    const mutationSalvarMapaSala = useMutation({
+        mutationFn: ({ classeId, colunas, linhas, cadeiras }: { classeId: string; colunas: number; linhas: number; cadeiras: (string | null)[] }) =>
+            salvarMapaSalaAPI(classeId, { colunas, linhas, cadeiras }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['classes'] });
+        },
     });
 
     // --- MUTAÇÕES DE ALUNO ---
@@ -130,6 +140,7 @@ export const useCadastrosEscolares = () => {
         mutationClasse,
         mutationAtualizarClasse,
         mutationDeletarClasse,
+        mutationSalvarMapaSala,
         mutationAluno,
         mutationAtualizarAluno,
         mutationDeletarAluno,

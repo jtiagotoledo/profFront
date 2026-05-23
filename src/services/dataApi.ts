@@ -62,43 +62,51 @@ export const deletarAlunoAPI = async (id: string) => {
 
 export const updateFrequenciaAPI = async (alunoId: string, data: string, presente: boolean, conteudo: string) => {
   const response = await api.patch(`/alunos/${alunoId}/frequencia`, {
-    data: data, 
-    presente: presente, 
+    data: data,
+    presente: presente,
     conteudo
   });
   return response.data;
 };
 
 export const confirmarPresencaTotalAPI = async (classeId: string, data: string, conteudo?: string) => {
-    const response = await api.patch('/classes/confirmar-dia', { 
-        classeId, 
-        data, 
-        conteudo: conteudo || "" 
-    });
-    return response.data;
+  const response = await api.patch('/classes/confirmar-dia', {
+    classeId,
+    data,
+    conteudo: conteudo || ""
+  });
+  return response.data;
 };
 
 export const updateNotaAPI = async (alunoId: string, data: string, valor: number) => {
-  const response = await api.patch(`/alunos/${alunoId}/nota`, { 
-    data, 
-    valor 
+  const response = await api.patch(`/alunos/${alunoId}/nota`, {
+    data,
+    valor
   });
   return response.data;
 };
 
 export const lancarNotasEmLoteAPI = async (data: string, notas: { alunoId: string, valor: number }[]) => {
-  const response = await api.post('/alunos/notas-em-lote', { 
-    data, 
-    notas 
+  const response = await api.post('/alunos/notas-em-lote', {
+    data,
+    notas
   });
   return response.data;
 };
 
 export const confirmarProvaAPI = async (classeId: string, data: string, titulo: string) => {
-  const response = await api.patch('/classes/confirmar-prova', { 
-    classeId, 
-    data, 
-    titulo 
+  const response = await api.patch('/classes/confirmar-prova', {
+    classeId,
+    data,
+    titulo
   });
+  return response.data;
+};
+
+export const salvarMapaSalaAPI = async (
+  classeId: string,
+  data: { colunas: number; linhas: number; cadeiras: (string | null)[] }
+) => {
+  const response = await api.patch(`/classes/${classeId}/mapa-sala`, data);
   return response.data;
 };
