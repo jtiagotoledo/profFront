@@ -39,25 +39,34 @@ function MapaSalaScreen() {
     const classeAtual = classes?.find((c: any) => c._id === idClasseSelecionada);
 
     useEffect(() => {
-        navigation.setOptions({
-            headerTitle: () => (
-                <View style={styles.headerTitleContainer}>
-                    <Text style={styles.headerTitleText}>Mapa de Sala</Text>
-
-                    <TouchableOpacity
-                        style={styles.headerDropdown}
-                        onPress={() => setModalClassesVisible(true)}
-                        activeOpacity={0.7}
-                    >
-                        <Text style={styles.headerDropdownText} numberOfLines={1}>
-                            {classeAtual ? classeAtual.nome : 'Turma'}
-                        </Text>
-                        <Icon name="chevron-down" size={18} color={colors.darkText} />
-                    </TouchableOpacity>
-                </View>
-            ),
-        });
-    }, [navigation, classeAtual]);
+    navigation.setOptions({
+      headerTitle: () => (
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitleText}>Mapa de Sala</Text>
+          
+          <TouchableOpacity 
+            style={styles.headerDropdown} 
+            onPress={() => {
+              if (!idAnoSelecionado) {
+                Alert.alert(
+                  "Aviso", 
+                  "Por favor, vá até a tela de meus alunos e selecione um Ano Letivo."
+                );
+              } else {
+                setModalClassesVisible(true);
+              }
+            }}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.headerDropdownText} numberOfLines={1}>
+              {classeAtual ? classeAtual.nome : 'Turma'}
+            </Text>
+            <Icon name="chevron-down" size={18} color={colors.darkText} />
+          </TouchableOpacity>
+        </View>
+      ),
+    });
+  }, [navigation, classeAtual, idAnoSelecionado]);
 
     useEffect(() => {
         if (classeAtual?.mapaSala && alunos) {
@@ -109,7 +118,7 @@ function MapaSalaScreen() {
             cadeiras: listaIdsAlunos
         }, {
             onSuccess: () => {
-                Alert.alert("Sucesso", "O layout e mapeamento da sala foram guardados!");
+                Alert.alert("Sucesso", "O layout e mapeamento da sala foram salvos!");
             },
             onError: (err: any) => {
                 Alert.alert("Erro", err?.message || "Não foi possível salvar as alterações.");
