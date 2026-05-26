@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
-import { TextInput, TouchableOpacity, Text, StyleSheet, View, ActivityIndicator, Alert } from 'react-native';
+import { 
+  TextInput, TouchableOpacity, Text, StyleSheet, 
+  View, ActivityIndicator, Alert 
+} from 'react-native';
+import DocumentPicker from 'react-native-document-picker';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
 import { ModalGenerico } from '../components/ModalGenerico';
 import { useCadastrosEscolares } from '../hooks/useEscolarMutations';
+import { useAppStore } from '../store/useAppStore';
 import { colors } from '../theme/colors';
 
 interface ModalCadastroAlunoProps {
@@ -15,10 +22,13 @@ export const ModalCadastroAluno = ({ visible, onClose, idClasseSelecionada }: Mo
   const [numero, setNumero] = useState(''); 
   
   const { mutationAluno } = useCadastrosEscolares();
+  
+  // Puxa o user global para verificar o status Premium
+  const { user } = useAppStore();
 
   const isFormInvalido = !nome.trim() || !numero || !idClasseSelecionada;
 
-  const handleSalvar = () => {
+  const handleSalvarManual = () => {
     if (isFormInvalido) {
       Alert.alert("Aviso", "Preencha o nome, o número e selecione uma turma.");
       return;
@@ -40,10 +50,43 @@ export const ModalCadastroAluno = ({ visible, onClose, idClasseSelecionada }: Mo
     });
   };
 
+  const handleSelecionarArquivo = async () => {
+    // 1. VERIFICAÇÃO PREMIUM
+    if (!user?.isPremium) {
+      Alert.alert(
+        "Funcionalidade Premium 💎", 
+        "A importação de alunos em massa via Excel é exclusiva para assinantes Premium. Faça o upgrade para economizar tempo!"
+      );
+      return;
+    }
+
+    // 2. SELEÇÃO DO ARQUIVO (Lógica da Fase 2)
+    try {
+      const result = await DocumentPicker.pickSingle({
+        type: [DocumentPicker.types.xls, DocumentPicker.types.xlsx],
+        presentationStyle: 'fullScreen',
+      });
+
+      console.log("Arquivo selecionado:", result);
+      Alert.alert("Arquivo Selecionado", `Pronto para enviar: ${result.name}`);
+      
+      // NOTA: Na Fase 4, chamaremos a mutation aqui para enviar o 'result' para o backend!
+
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        console.log("Usuário cancelou a seleção do arquivo.");
+      } else {
+        console.error("Erro ao selecionar arquivo:", err);
+        Alert.alert("Erro", "Não foi possível selecionar o arquivo.");
+      }
+    }
+  };
+
   return (
     <ModalGenerico visible={visible} onClose={onClose} titulo="Novo Aluno">
       <View style={styles.container}>
         
+        {/* === FORMULÁRIO MANUAL === */}
         <Text style={styles.labelField}>Nome do Aluno</Text>
         <TextInput
           style={styles.input}
@@ -67,7 +110,7 @@ export const ModalCadastroAluno = ({ visible, onClose, idClasseSelecionada }: Mo
             styles.button, 
             (isFormInvalido || mutationAluno.isPending) && styles.buttonDisabled
           ]} 
-          onPress={handleSalvar}
+          onPress={handleSalvarManual}
           disabled={isFormInvalido || mutationAluno.isPending}
         >
           {mutationAluno.isPending ? (
@@ -76,6 +119,25 @@ export const ModalCadastroAluno = ({ visible, onClose, idClasseSelecionada }: Mo
             <Text style={styles.buttonText}>Cadastrar Aluno</Text>
           )}
         </TouchableOpacity>
+
+        {/* === SEPARADOR === */}
+        <View style={styles.separadorOu}>
+          <View style={styles.linhaSeparador} />
+          <Text style={styles.textoOu}>OU</Text>
+          <View style={styles.linhaSeparador} />
+        </View>
+
+        {/* === BOTÃO DE IMPORTAÇÃO (PREMIUM) === */}
+        <TouchableOpacity 
+          style={[styles.btnImportar, !user?.isPremium && styles.btnImportarBloqueado]} 
+          onPress={handleSelecionarArquivo}
+        >
+          <Icon name={user?.isPremium ? "file-excel" : "lock"} size={22} color={colors.white} />
+          <Text style={styles.btnImportarTexto}>
+            Importar via Excel (.xls)
+          </Text>
+        </TouchableOpacity>
+
       </View>
     </ModalGenerico>
   );
@@ -115,5 +177,40 @@ const styles = StyleSheet.create({
     color: colors.white, 
     fontWeight: 'bold', 
     fontSize: 16 
-  }
+  },
+  
+  // Estilos da nova secção de Importação
+  separadorOu: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  linhaSeparador: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.borderLight,
+  },
+  textoOu: {
+    color: colors.mutedText,
+    fontWeight: 'bold',
+    marginHorizontal: 15,
+    fontSize: 12,
+  },
+  btnImportar: {
+    flexDirection: 'row',
+    backgroundColor: '#107C41', // Verde clássico do Excel
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  btnImportarBloqueado: {
+    backgroundColor: colors.mutedText, 
+  },
+  btnImportarTexto: {
+    color: colors.white,
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
 });
