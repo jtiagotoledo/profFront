@@ -3,7 +3,7 @@ import {
   TextInput, TouchableOpacity, Text, StyleSheet, 
   View, ActivityIndicator, Alert 
 } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
+import { pick, isErrorWithCode, errorCodes } from '@react-native-documents/picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { ModalGenerico } from '../components/ModalGenerico';
@@ -62,8 +62,12 @@ export const ModalCadastroAluno = ({ visible, onClose, idClasseSelecionada }: Mo
 
     // 2. SELEÇÃO DO ARQUIVO (Lógica da Fase 2)
     try {
-      const result = await DocumentPicker.pickSingle({
-        type: [DocumentPicker.types.xls, DocumentPicker.types.xlsx],
+      const [result] = await pick({
+        // Na nova biblioteca usamos os MimeTypes oficiais:
+        type: [
+          'application/vnd.ms-excel', // .xls
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' // .xlsx
+        ],
         presentationStyle: 'fullScreen',
       });
 
@@ -73,7 +77,8 @@ export const ModalCadastroAluno = ({ visible, onClose, idClasseSelecionada }: Mo
       // NOTA: Na Fase 4, chamaremos a mutation aqui para enviar o 'result' para o backend!
 
     } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
+      // Nova verificação de cancelamento da biblioteca:
+      if (isErrorWithCode(err) && err.code === errorCodes.OPERATION_CANCELED) {
         console.log("Usuário cancelou a seleção do arquivo.");
       } else {
         console.error("Erro ao selecionar arquivo:", err);
