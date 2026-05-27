@@ -110,3 +110,8 @@ export const salvarMapaSalaAPI = async (
   const response = await api.patch(`/classes/${classeId}/mapa-sala`, data);
   return response.data;
 };
+
+export const importarAlunosLoteAPI = async (classeId: string, alunos: any[]) => {
+  const response = await api.post(`/alunos/importar-lote`, { classeId, alunos });
+  return response.data;
+};

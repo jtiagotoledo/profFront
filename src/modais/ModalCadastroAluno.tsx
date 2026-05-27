@@ -124,6 +124,7 @@ export const ModalCadastroAluno = ({ visible, onClose, idClasseSelecionada }: Mo
       <ModalImportacaoExcel 
         visible={modalExcelVisivel} 
         onClose={() => setModalExcelVisivel(false)} 
+        idClasseSelecionada={idClasseSelecionada}
       />
     </>
   );

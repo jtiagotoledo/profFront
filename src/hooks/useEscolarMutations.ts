@@ -6,7 +6,7 @@ import {
     deletarClasseAPI, atualizarAlunoAPI, deletarAlunoAPI,
     updateFrequenciaAPI, confirmarPresencaTotalAPI,
     updateNotaAPI, lancarNotasEmLoteAPI, confirmarProvaAPI,
-    salvarMapaSalaAPI,
+    salvarMapaSalaAPI, importarAlunosLoteAPI,
 } from '../services/dataApi';
 import { useAppStore } from '../store/useAppStore';
 
@@ -83,6 +83,14 @@ export const useCadastrosEscolares = () => {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['alunos'] }),
     });
 
+    const mutationImportarAlunosLote = useMutation({
+        mutationFn: ({ classeId, alunos }: { classeId: string; alunos: any[] }) =>
+            importarAlunosLoteAPI(classeId, alunos),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['alunos'] });
+        },
+    });
+
     // --- MUTAÇÕES DE FREQUÊNCIA ---
     const mutationUpdateFrequencia = useMutation({
         mutationFn: ({ alunoId, data, presente, conteudo }: any) =>
@@ -144,6 +152,7 @@ export const useCadastrosEscolares = () => {
         mutationAluno,
         mutationAtualizarAluno,
         mutationDeletarAluno,
+        mutationImportarAlunosLote,
         mutationUpdateFrequencia,
         mutationConfirmarDiaTotal,
         mutationUpdateNota,
