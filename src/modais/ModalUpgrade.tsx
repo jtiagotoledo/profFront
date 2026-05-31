@@ -41,6 +41,7 @@ export function ModalUpgrade({ visible, onClose, onUpgrade }: Props) {
             <BenefitItem icon="calendar-multiselect" text="Criação de anos letivos ilimitados" />
             <BenefitItem icon="google-classroom" text="Criação de classes ilimitadas" />
             <BenefitItem icon="account-group" text="Mais de 10 alunos por turma" />
+            <BenefitItem icon="file-excel" text="Importação rápida de alunos via Excel" /> {/* <-- NOVA LINHA AQUI */}
             <BenefitItem icon="cloud-check" text="Sincronização e Backup total" />
           </View>
 
@@ -83,7 +84,7 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 14, color: '#6B7280', marginTop: 4 },
   benefits: { width: '100%', backgroundColor: '#F3F4F6', borderRadius: 16, padding: 16, marginBottom: 20 },
   benefitRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 14, gap: 12 },
-  benefitText: { color: '#374151', fontSize: 15, fontWeight: '500' },
+  benefitText: { color: '#374151', fontSize: 15, fontWeight: '500', flex: 1 },
   priceContainer: { alignItems: 'center', marginBottom: 25 },
   priceText: { fontSize: 16, color: '#4B5563' },
   priceHighlight: { fontWeight: 'bold', color: '#111827', fontSize: 20 },

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { pick, isErrorWithCode, errorCodes } from '@react-native-documents/picker';
 import RNFS from 'react-native-fs';
@@ -7,7 +7,7 @@ import * as XLSX from 'xlsx';
 
 import { ModalGenerico } from '../components/ModalGenerico';
 import { colors } from '../theme/colors';
-import { useCadastrosEscolares } from '../hooks/useEscolarMutations'; // Para aceder à mutação
+import { useCadastrosEscolares } from '../hooks/useEscolarMutations';
 
 interface ModalImportacaoExcelProps {
     visible: boolean;
@@ -17,11 +17,10 @@ interface ModalImportacaoExcelProps {
 
 export const ModalImportacaoExcel = ({ visible, onClose, idClasseSelecionada }: ModalImportacaoExcelProps) => {
     const [lendoArquivo, setLendoArquivo] = useState(false);
-    const [alunosLidos, setAlunosLidos] = useState<any[] | null>(null); // Guarda o JSON extraído
+    const [alunosLidos, setAlunosLidos] = useState<any[] | null>(null);
 
     const { mutationImportarAlunosLote } = useCadastrosEscolares();
 
-    // Função para limpar o estado quando o modal é fechado
     const handleClose = () => {
         setAlunosLidos(null);
         onClose();
@@ -41,11 +40,32 @@ export const ModalImportacaoExcel = ({ visible, onClose, idClasseSelecionada }: 
             const aba = workbook.Sheets[nomePrimeiraAba];
 
             // Lê o Excel como JSON puro
-            const dadosBrutos = XLSX.utils.sheet_to_json(aba);
+            const dadosBrutos = XLSX.utils.sheet_to_json(aba) as any[];
 
-            // Normaliza os dados (ignora espaços, maiúsculas e minúsculas nos cabeçalhos)
+            setLendoArquivo(false); 
+
+            // 1. Validação de Planilha Vazia
+            if (!dadosBrutos || dadosBrutos.length === 0) {
+                Alert.alert("Aviso", "A planilha parece estar vazia.");
+                return;
+            }
+
+            // 2. Validação Rigorosa dos Cabeçalhos
+            const cabecalhos = Object.keys(dadosBrutos[0]).map(k => k.trim().toLowerCase());
+
+            const temColunaNumero = cabecalhos.includes('numero') || cabecalhos.includes('número');
+            const temColunaNome = cabecalhos.includes('nome');
+
+            if (!temColunaNumero || !temColunaNome) {
+                Alert.alert(
+                    "Cabeçalhos Inválidos",
+                    "Não encontrámos as colunas corretas.\n\nCertifique-se de que a linha 1 da sua planilha tem escrito exatamente 'Numero' e 'Nome'."
+                );
+                return; 
+            }
+
+            // 3. Normaliza os dados
             const alunosNormalizados = dadosBrutos.map((linha: any) => {
-                // Encontra as chaves reais da planilha, ignorando formatação
                 const chaveNumero = Object.keys(linha).find(k => k.trim().toLowerCase() === 'numero' || k.trim().toLowerCase() === 'número');
                 const chaveNome = Object.keys(linha).find(k => k.trim().toLowerCase() === 'nome');
 
@@ -53,16 +73,9 @@ export const ModalImportacaoExcel = ({ visible, onClose, idClasseSelecionada }: 
                     numero: chaveNumero ? linha[chaveNumero] : null,
                     nome: chaveNome ? linha[chaveNome] : null
                 };
-            }).filter((aluno: any) => aluno.nome); // Remove linhas vazias perdidas no Excel
+            }).filter((aluno: any) => aluno.nome);
 
-            setLendoArquivo(false);
-
-            if (alunosNormalizados.length === 0) {
-                Alert.alert("Aviso", "Não encontrámos colunas válidas. Certifique-se de que os cabeçalhos são 'Numero' e 'Nome'.");
-                return;
-            }
-
-            // Guardamos a lista limpa e normalizada!
+            // 4. Guarda a lista limpa
             setAlunosLidos(alunosNormalizados);
 
         } catch (err) {
@@ -151,21 +164,20 @@ export const ModalImportacaoExcel = ({ visible, onClose, idClasseSelecionada }: 
                         </View>
                         <Text style={styles.previewSubtitle}>Confira abaixo se a extração ocorreu bem:</Text>
 
-                        <FlatList
-                            data={alunosLidos}
-                            keyExtractor={(_, index) => index.toString()}
-                            style={styles.listaPreview}
-                            renderItem={({ item }) => (
-                                <View style={styles.itemPreview}>
+                        {/* LISTA SUBSTITUÍDA POR SCROLLVIEW */}
+                        <ScrollView 
+                            style={styles.listaPreview} 
+                            nestedScrollEnabled={true}
+                        >
+                            {alunosLidos.map((item, index) => (
+                                <View key={index.toString()} style={styles.itemPreview}>
                                     <View style={styles.numeroBadge}>
-                                        {/* Agora usamos diretamente item.numero */}
                                         <Text style={styles.numeroBadgeText}>{item.numero || '-'}</Text>
                                     </View>
-                                    {/* Agora usamos diretamente item.nome */}
                                     <Text style={styles.nomePreviewText}>{item.nome || 'Sem nome'}</Text>
                                 </View>
-                            )}
-                        />
+                            ))}
+                        </ScrollView>
 
                         <TouchableOpacity
                             style={[styles.btnConfirmar, mutationImportarAlunosLote.isPending && { opacity: 0.7 }]}
@@ -222,7 +234,7 @@ const styles = StyleSheet.create({
     previewHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 5, gap: 8 },
     previewTitle: { fontSize: 18, fontWeight: 'bold', color: colors.secondary },
     previewSubtitle: { fontSize: 14, color: colors.mutedText, marginBottom: 15 },
-    listaPreview: { maxHeight: 250, backgroundColor: colors.background, borderRadius: 8, padding: 10, marginBottom: 20 },
+    listaPreview: { maxHeight: 400, backgroundColor: colors.background, borderRadius: 8, padding: 10, marginBottom: 20 },
     itemPreview: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
     numeroBadge: { backgroundColor: colors.borderLight, width: 30, height: 30, borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginRight: 10 },
     numeroBadgeText: { fontWeight: 'bold', color: colors.darkText, fontSize: 13 },

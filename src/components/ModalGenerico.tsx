@@ -18,28 +18,33 @@ export const ModalGenerico = ({ visible, onClose, titulo, children }: ModalGener
             visible={visible}
             onRequestClose={onClose}
         >
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={styles.overlay}>
+            <View style={styles.overlay}>
+                
+                {/* 1. O fundo escuro agora é um elemento independente atrás do modal */}
+                {/* Se o professor clicar fora da caixa branca, o teclado fecha-se */}
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                    <View style={StyleSheet.absoluteFill} />
+                </TouchableWithoutFeedback>
 
-                    <KeyboardAvoidingView
-                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                        style={styles.container}
-                    >
-                        <View style={styles.content}>
-                            <View style={styles.header}>
-                                <Text style={styles.title}>{titulo}</Text>
-                                <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                                    <Icon name="close" size={24} color={colors.mutedText} />
-                                </TouchableOpacity>
-                            </View>
-                            <View style={styles.body}>
-                                {children}
-                            </View>
+                {/* 2. A caixa do Modal já não está presa dentro do Touchable */}
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    style={styles.container}
+                >
+                    <View style={styles.content}>
+                        <View style={styles.header}>
+                            <Text style={styles.title}>{titulo}</Text>
+                            <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                                <Icon name="close" size={24} color={colors.mutedText} />
+                            </TouchableOpacity>
                         </View>
-                    </KeyboardAvoidingView>
+                        <View style={styles.body}>
+                            {children}
+                        </View>
+                    </View>
+                </KeyboardAvoidingView>
 
-                </View>
-            </TouchableWithoutFeedback>
+            </View>
         </Modal>
     );
 };
@@ -54,6 +59,7 @@ const styles = StyleSheet.create({
     container: {
         width: '90%',
         maxWidth: 400,
+        zIndex: 1, // Garante que a caixa fica por cima do fundo clicável
     },
     content: {
         backgroundColor: colors.white,
@@ -64,6 +70,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 4,
+        maxHeight: '95%', // Protege o modal de crescer mais do que o ecrã
     },
     header: {
         flexDirection: 'row',
