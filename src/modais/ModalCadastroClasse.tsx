@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TextInput, TouchableOpacity, Text, StyleSheet, View, ActivityIndicator, Alert } from 'react-native';
 import { ModalGenerico } from '../components/ModalGenerico';
 import { useCadastrosEscolares } from '../hooks/useEscolarMutations';
+import { useAppStore } from '../store/useAppStore';
 import { colors } from '../theme/colors';
 
 interface ModalCadastroClasseProps {
@@ -13,8 +14,8 @@ interface ModalCadastroClasseProps {
 export const ModalCadastroClasse = ({ visible, onClose, idAnoSelecionado }: ModalCadastroClasseProps) => {
   const [nome, setNome] = useState('');
   const { mutationClasse } = useCadastrosEscolares();
+  const { setClasse } = useAppStore();
 
-  // Verifica se o formulário é válido (nome preenchido e ano selecionado)
   const isFormInvalido = !nome.trim() || !idAnoSelecionado;
 
   const handleSalvar = () => {
@@ -32,9 +33,15 @@ export const ModalCadastroClasse = ({ visible, onClose, idAnoSelecionado }: Moda
       nome: nome.trim(),
       anoLetivoId: idAnoSelecionado
     }, {
-      onSuccess: () => {
+      onSuccess: (respostaApi: any) => { 
         setNome('');
         onClose();
+
+        const novaClasseId = respostaApi?.data?._id || respostaApi?._id || respostaApi?.data?.classe?._id;
+        
+        if (novaClasseId) {
+          setClasse(novaClasseId);
+        }
       },
       onError: (error: any) => {
         Alert.alert("Erro", error.response?.data?.message || "Não foi possível salvar a classe.");

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TextInput, TouchableOpacity, Text, StyleSheet, View, ActivityIndicator, Alert } from 'react-native';
 import { ModalGenerico } from '../components/ModalGenerico';
 import { useCadastrosEscolares } from '../hooks/useEscolarMutations';
+import { useAppStore } from '../store/useAppStore';
 import { colors } from '../theme/colors';
 
 interface ModalCadastroAnoProps {
@@ -12,6 +13,7 @@ interface ModalCadastroAnoProps {
 export const ModalCadastroAno = ({ visible, onClose }: ModalCadastroAnoProps) => {
   const [rotulo, setRotulo] = useState('');
   const { mutationAno } = useCadastrosEscolares();
+  const { setAno } = useAppStore();
 
   const handleSalvar = () => {
     if (!rotulo.trim()) {
@@ -20,9 +22,15 @@ export const ModalCadastroAno = ({ visible, onClose }: ModalCadastroAnoProps) =>
     }
 
     mutationAno.mutate(rotulo, {
-      onSuccess: () => {
+      onSuccess: (respostaApi: any) => { 
         setRotulo('');
         onClose();
+        
+        const novoId = respostaApi?.data?._id || respostaApi?._id || respostaApi?.data?.ano?._id;
+        
+        if (novoId) {
+          setAno(novoId);
+        }
       },
       onError: (error: any) => {
         Alert.alert("Erro", error.response?.data?.message || "Não foi possível salvar.");

@@ -12,10 +12,10 @@ import { useCadastrosEscolares } from '../hooks/useEscolarMutations';
 interface ModalImportacaoExcelProps {
     visible: boolean;
     onClose: () => void;
+    onSuccessImport: () => void;
     idClasseSelecionada: string | null;
 }
-
-export const ModalImportacaoExcel = ({ visible, onClose, idClasseSelecionada }: ModalImportacaoExcelProps) => {
+export const ModalImportacaoExcel = ({ visible, onClose, onSuccessImport, idClasseSelecionada }: ModalImportacaoExcelProps) => {
     const [lendoArquivo, setLendoArquivo] = useState(false);
     const [alunosLidos, setAlunosLidos] = useState<any[] | null>(null);
 
@@ -97,11 +97,36 @@ export const ModalImportacaoExcel = ({ visible, onClose, idClasseSelecionada }: 
             alunos: alunosLidos
         }, {
             onSuccess: () => {
-                Alert.alert("Sucesso 🎉", `${alunosLidos.length} alunos importados com sucesso!`);
-                handleClose();
+                Alert.alert(
+                    "Sucesso: ", 
+                    `${alunosLidos.length} alunos importados com sucesso!`,
+                    [
+                        {
+                            text: "OK",
+                            onPress: () => {
+                                handleClose(); 
+                                
+                                setTimeout(() => {
+                                    onSuccessImport(); 
+                                }, 300);
+                            }
+                        }
+                    ]
+                );
             },
             onError: (err: any) => {
-                Alert.alert("Erro", err.response?.data?.message || "Ocorreu um erro no servidor ao salvar os alunos.");
+                if (!err.response || err.message === 'Network Error') {
+                    Alert.alert(
+                        "Sem Conexão 📶", 
+                        "Não foi possível ligar ao servidor. Verifique a sua internet e tente novamente."
+                    );
+                    return; 
+                }
+
+                Alert.alert(
+                    "Erro", 
+                    err.response?.data?.message || "Ocorreu um erro no servidor ao salvar os alunos."
+                );
             }
         });
     };
