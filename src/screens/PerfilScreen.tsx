@@ -1,17 +1,56 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { pick, isErrorWithCode, errorCodes } from '@react-native-documents/picker';
+
 import { useAppStore } from '../store/useAppStore';
 import { colors } from '../theme/colors';
 import { iapService } from '../services/iapService';
+import { updateFotoPerfilAPI } from '../services/usersApi';
 
 export default function PerfilScreen() {
-  const { user, appVersion, logout } = useAppStore();
+  const { user, appVersion, logout, refreshUser } = useAppStore();
+  const [uploadingFoto, setUploadingFoto] = useState(false);
 
   const handleDebugLimparCompras = async () => {
     if (__DEV__) {
       console.log("🛠️ Modo Dev: Limpando compras de teste...");
       await iapService.limparComprasTestes();
+    }
+  };
+
+  const handleTrocarFoto = async () => {
+    try {
+      const [file] = await pick({
+        type: ['image/*'],
+      });
+
+      if (!file) return;
+
+      setUploadingFoto(true);
+
+      const formData = new FormData();
+      formData.append('foto', {
+        uri: file.uri,
+        type: file.type || 'image/jpeg',
+        name: file.name || 'perfil.jpg',
+      } as any);
+
+      await updateFotoPerfilAPI(formData);
+
+      await refreshUser();
+      
+      Alert.alert("Sucesso", "Foto de perfil atualizada!");
+
+    } catch (err) {
+      if (isErrorWithCode(err) && err.code === errorCodes.OPERATION_CANCELED) {
+        console.log("Utilizador cancelou a seleção da foto.");
+      } else {
+        console.error("Erro ao fazer upload da foto:", err);
+        Alert.alert("Erro", "Não foi possível atualizar a foto de perfil. Tente novamente.");
+      }
+    } finally {
+      setUploadingFoto(false);
     }
   };
 
@@ -21,7 +60,6 @@ export default function PerfilScreen() {
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      
       <View style={styles.topWrapper}>
         <View style={styles.logoSection}>
           <Image
@@ -33,13 +71,28 @@ export default function PerfilScreen() {
 
         {/* CARD DO USUÁRIO */}
         <View style={styles.userCard}>
-          {user?.fotoPerfil ? (
-            <Image source={{ uri: user.fotoPerfil }} style={styles.avatarLarge} />
-          ) : (
-            <View style={styles.avatarPlaceholder}>
-              <Text style={styles.avatarInitial}>{user?.nome?.charAt(0) || 'P'}</Text>
+          
+          {/* FOTO DE PERFIL CLICÁVEL COM ÍCONE DE CÂMARA */}
+          <TouchableOpacity onPress={handleTrocarFoto} disabled={uploadingFoto} activeOpacity={0.8}>
+            <View style={styles.avatarContainer}>
+              {user?.fotoPerfil ? (
+                <Image source={{ uri: user.fotoPerfil }} style={styles.avatarLarge} />
+              ) : (
+                <View style={styles.avatarPlaceholder}>
+                  <Text style={styles.avatarInitial}>{user?.nome?.charAt(0) || 'P'}</Text>
+                </View>
+              )}
+              
+              <View style={styles.editBadge}>
+                {uploadingFoto ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <Icon name="camera" size={16} color="#FFF" />
+                )}
+              </View>
             </View>
-          )}
+          </TouchableOpacity>
+
           <Text style={styles.userName}>{user?.nome || 'Professor'}</Text>
           <Text style={styles.userEmail}>{user?.email}</Text>
           
@@ -88,126 +141,45 @@ export default function PerfilScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#F9FAFB' 
+  container: { flex: 1, backgroundColor: '#F9FAFB' },
+  content: { flexGrow: 1, padding: 20, alignItems: 'center', justifyContent: 'space-between' },
+  topWrapper: { width: '100%', alignItems: 'center' },
+  logoSection: { marginVertical: 30 },
+  logo: { width: 180, height: 100 },
+  userCard: { backgroundColor: '#FFF', width: '100%', borderRadius: 20, padding: 25, alignItems: 'center', elevation: 3, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, shadowOffset: { width: 0, height: 4 } },
+  
+  /* ESTILOS NOVOS DO AVATAR */
+  avatarContainer: {
+    position: 'relative',
+    marginBottom: 15,
   },
-  content: { 
-    flexGrow: 1, 
-    padding: 20, 
-    alignItems: 'center', 
-    justifyContent: 'space-between', 
-  },
-  topWrapper: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  logoSection: { 
-    marginVertical: 30 
-  },
-  logo: { 
-    width: 180, 
-    height: 100 
-  },
-  userCard: {
-    backgroundColor: '#FFF',
-    width: '100%',
-    borderRadius: 20,
-    padding: 25,
-    alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-  },
-  avatarLarge: { 
-    width: 100, 
-    height: 100, 
-    borderRadius: 50, 
-    marginBottom: 15 
-  },
-  avatarPlaceholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: colors.primary,
+  avatarLarge: { width: 100, height: 100, borderRadius: 50 },
+  avatarPlaceholder: { width: 100, height: 100, borderRadius: 50, backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center' },
+  avatarInitial: { color: '#FFF', fontSize: 40, fontWeight: 'bold' },
+  editBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: colors.secondary,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 15
+    borderWidth: 3,
+    borderColor: '#FFF',
+    elevation: 2,
   },
-  avatarInitial: { 
-    color: '#FFF', 
-    fontSize: 40, 
-    fontWeight: 'bold' 
-  },
-  userName: { 
-    fontSize: 20, 
-    fontWeight: '700', 
-    color: '#1F2937' 
-  },
-  userEmail: { 
-    fontSize: 14, 
-    color: '#6B7280', 
-    marginTop: 4 
-  },
-  premiumBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
-    marginTop: 12,
-    gap: 5
-  },
-  premiumText: {
-    color: '#FFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  divider: { 
-    height: 1, 
-    backgroundColor: '#E5E7EB', 
-    width: '100%', 
-    marginVertical: 25 
-  },
-  menuSection: { 
-    width: '100%', 
-    gap: 12 
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-    padding: 16,
-    borderRadius: 12,
-    gap: 12,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    shadowOffset: { width: 0, height: 1 },
-  },
-  menuText: { 
-    flex: 1, 
-    fontSize: 16, 
-    fontWeight: '600', 
-    color: '#374151' 
-  },
-  footer: { 
-    marginTop: 40, 
-    alignItems: 'center',
-    paddingBottom: 10 
-  },
-  versionLabel: { 
-    fontSize: 12, 
-    color: '#9CA3AF', 
-    fontWeight: '600' 
-  },
-  versionNumber: { 
-    fontSize: 11, 
-    color: '#9CA3AF', 
-    marginTop: 2 
-  },
+  
+  userName: { fontSize: 20, fontWeight: '700', color: '#1F2937' },
+  userEmail: { fontSize: 14, color: '#6B7280', marginTop: 4 },
+  premiumBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.primary, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20, marginTop: 12, gap: 5 },
+  premiumText: { color: '#FFF', fontSize: 12, fontWeight: 'bold' },
+  divider: { height: 1, backgroundColor: '#E5E7EB', width: '100%', marginVertical: 25 },
+  menuSection: { width: '100%', gap: 12 },
+  menuItem: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', padding: 16, borderRadius: 12, gap: 12, elevation: 1, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 } },
+  menuText: { flex: 1, fontSize: 16, fontWeight: '600', color: '#374151' },
+  footer: { marginTop: 40, alignItems: 'center', paddingBottom: 10 },
+  versionLabel: { fontSize: 12, color: '#9CA3AF', fontWeight: '600' },
+  versionNumber: { fontSize: 11, color: '#9CA3AF', marginTop: 2 },
 });

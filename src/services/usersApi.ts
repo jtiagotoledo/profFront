@@ -31,3 +31,12 @@ export const validarAssinaturaAPI = async (purchaseToken: string, productId: str
   });
   return response.data;
 };
+
+export const updateFotoPerfilAPI = async (formData: FormData) => {
+  const response = await api.patch('/auth/foto', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
