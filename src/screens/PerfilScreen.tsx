@@ -23,15 +23,18 @@ export default function PerfilScreen() {
     try {
       const [file] = await pick({
         type: ['image/*'],
+        copyTo: 'cachesDirectory', 
       });
 
       if (!file) return;
 
       setUploadingFoto(true);
+      
+      const uriSegura = (file as any).fileCopyUri || file.uri;
 
       const formData = new FormData();
       formData.append('foto', {
-        uri: file.uri,
+        uri: uriSegura, 
         type: file.type || 'image/jpeg',
         name: file.name || 'perfil.jpg',
       } as any);
