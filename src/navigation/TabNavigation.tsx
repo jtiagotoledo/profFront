@@ -8,6 +8,7 @@ import FrequenciaScreen from '../screens/FrequenciaScreen';
 import NotasScreen from '../screens/NotasScreen';
 import MapaSalaScreen from '../screens/MapaSalaScreen';
 import { useAppStore } from '../store/useAppStore';
+import { ExportarNotasBotao } from '../components/ExportarNotasBotao';
 
 const Tab = createBottomTabNavigator();
 
@@ -33,8 +34,17 @@ const makeIcon = (name: string) => ({ color, size }: any) => (
 export function TabNavigator({ navigation }: any) {
   const { user } = useAppStore();
 
-  const headerRightComponent = useMemo(() => {
+  const defaultHeaderRight = useMemo(() => {
     return () => <ProfileHeaderButton navigation={navigation} user={user} />;
+  }, [navigation, user]);
+
+  const notasHeaderRight = useMemo(() => {
+    return () => (
+      <View style={styles.headerRightContainer}>
+        <ExportarNotasBotao />
+        <ProfileHeaderButton navigation={navigation} user={user} />
+      </View>
+    );
   }, [navigation, user]);
 
   return (
@@ -45,7 +55,7 @@ export function TabNavigator({ navigation }: any) {
         tabBarActiveTintColor: '#2E7D32',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: styles.tabBar,
-        headerRight: headerRightComponent,
+        headerRight: defaultHeaderRight, 
       }}
     >
       <Tab.Screen
@@ -69,7 +79,8 @@ export function TabNavigator({ navigation }: any) {
         component={NotasScreen}
         options={{
           title: 'Lançar Notas',
-          tabBarIcon: makeIcon('edit-3')
+          tabBarIcon: makeIcon('edit-3'),
+          headerRight: notasHeaderRight, // Sobrescreve especificamente para a tela de Notas
         }}
       />
       <Tab.Screen
@@ -92,6 +103,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
+  },
+  headerRightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   headerButton: {
     marginRight: 15,

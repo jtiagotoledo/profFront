@@ -41,6 +41,7 @@ function Login() {
                 // ---------------------------------
                 if (backendResponse && backendResponse.token) {
                     await loginGlobal(backendResponse.token, backendResponse.user);
+                    console.log("token",backendResponse.token);
                 }
             }
         } catch (error) {
