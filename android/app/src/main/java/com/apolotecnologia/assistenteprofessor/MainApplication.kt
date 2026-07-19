@@ -1,9 +1,9 @@
-import android.content.res.Configuration
-import expo.modules.ApplicationLifecycleDispatcher
-import expo.modules.ExpoReactHostFactory
 package com.apolotecnologia.assistenteprofessor
 
 import android.app.Application
+import android.content.res.Configuration
+import expo.modules.ApplicationLifecycleDispatcher
+import expo.modules.ExpoReactHostFactory
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost

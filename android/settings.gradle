@@ -1,30 +1,34 @@
-pluginManagement { includeBuild("../node_modules/@react-native/gradle-plugin") 
-  def expoPluginsPath = new File(
-    providers.exec {
-      workingDir(rootDir)
-      commandLine("node", "--print", "require.resolve('expo-modules-autolinking/package.json', { paths: [require.resolve('expo/package.json')] })")
-    }.standardOutput.asText.get().trim(),
-    "../android/expo-gradle-plugin"
-  ).absolutePath
-  includeBuild(expoPluginsPath)
+pluginManagement { 
+    includeBuild("../node_modules/@react-native/gradle-plugin") 
+    
+    def expoPluginsPath = new File(rootDir, "../node_modules/expo-modules-autolinking/android/expo-gradle-plugin").absolutePath
+    includeBuild(expoPluginsPath)
 }
-plugins { id("com.facebook.react.settings") 
-id("expo-autolinking-settings")
+
+plugins { 
+    id("com.facebook.react.settings") 
+    id("expo-autolinking-settings")
 }
-extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand(expoAutolinking.rnConfigCommand) }
+
+extensions.configure(com.facebook.react.ReactSettingsExtension) { ex -> 
+    ex.autolinkLibrariesFromCommand(expoAutolinking.rnConfigCommand) 
+}
+
 rootProject.name = 'assistenteprofessor'
 include ':app'
-includeBuild('../node_modules/@react-native/gradle-plugin')
+
 include ':react-native-iap'
 project(':react-native-iap').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-iap/android')
 
+expoAutolinking.useExpoModules()
+expoAutolinking.useExpoVersionCatalog()
+includeBuild(expoAutolinking.reactNativeGradlePlugin)
+
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
     repositories {
         google()
         mavenCentral()
         maven { url "$rootDir/../node_modules/react-native-nitro-modules/android" }
     }
-}expoAutolinking.useExpoModules()
-expoAutolinking.useExpoVersionCatalog()
-includeBuild(expoAutolinking.reactNativeGradlePlugin)
+}
