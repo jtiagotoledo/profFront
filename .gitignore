@@ -85,3 +85,8 @@ android/app/build/
 .env.test.local
 .env.production.local
 .env*.local
+
+# Expo
+.expo
+dist/
+web-build/
