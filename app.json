@@ -2,6 +2,7 @@
   "name": "assistenteprofessor",
   "displayName": "assistenteprofessor",
   "plugins": [
-    "expo-sharing"
+    "expo-sharing",
+    "@react-native-community/datetimepicker"
   ]
 }

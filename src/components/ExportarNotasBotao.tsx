@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, Alert, ActivityIndicator, Modal, View, Text, TextInput, StyleSheet } from 'react-native';
+import { TouchableOpacity, Alert, ActivityIndicator, Modal, View, Text, StyleSheet, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 import { useAppStore } from '../store/useAppStore';
-import  api  from '../services/api'; 
+import api from '../services/api'; 
 import { gerarEPDFDeNotas } from '../utils/pdfGenerator';
 import { colors } from '../theme/colors';
 
@@ -14,8 +16,10 @@ export const ExportarNotasBotao = () => {
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   
-  const [dataInicio, setDataInicio] = useState('');
-  const [dataFim, setDataFim] = useState('');
+  const [dataInicio, setDataInicio] = useState<Date>(new Date());
+  const [dataFim, setDataFim] = useState<Date>(new Date());
+  
+  const [pickerAtivo, setPickerAtivo] = useState<'inicio' | 'fim' | null>(null);
 
   const abrirFiltro = () => {
     if (!user?.isPremium) {
@@ -41,9 +45,30 @@ export const ExportarNotasBotao = () => {
     setModalVisible(true);
   };
 
+  const aoMudarData = (event: any, dataSelecionada?: Date) => {
+    if (Platform.OS === 'android') {
+      setPickerAtivo(null); 
+    }
+
+    if (dataSelecionada) {
+      if (pickerAtivo === 'inicio') {
+        setDataInicio(dataSelecionada);
+      } else if (pickerAtivo === 'fim') {
+        setDataFim(dataSelecionada);
+      }
+    }
+  };
+
+  const formatarParaAPI = (data: Date) => {
+    return data.toISOString().split('T')[0];
+  };
+
   const handleExportar = async () => {
-    if (!dataInicio || !dataFim) {
-        Alert.alert("Aviso", "Por favor, preencha as datas de início e fim do período.");
+    const inicioStr = formatarParaAPI(dataInicio);
+    const fimStr = formatarParaAPI(dataFim);
+
+    if (dataInicio > dataFim) {
+        Alert.alert("Aviso", "A data inicial não pode ser maior que a data final.");
         return;
     }
 
@@ -54,7 +79,7 @@ export const ExportarNotasBotao = () => {
       const tipo = idClasseSelecionada ? 'classe' : 'ano';
       const id = idClasseSelecionada || idAnoSelecionado;
       
-      const response = await api.get(`/alunos/exportar/notas?tipo=${tipo}&id=${id}&dataInicio=${dataInicio}&dataFim=${dataFim}`);
+      const response = await api.get(`/alunos/exportar/notas?tipo=${tipo}&id=${id}&dataInicio=${inicioStr}&dataFim=${fimStr}`);
       const alunos = response.data.data;
 
       if (alunos.length === 0) {
@@ -95,23 +120,32 @@ export const ExportarNotasBotao = () => {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Filtrar Período</Text>
             
-            <Text style={styles.label}>Data de Início (AAAA-MM-DD):</Text>
-            <TextInput 
-              style={styles.input} 
-              value={dataInicio} 
-              onChangeText={setDataInicio} 
-              placeholder="Ex: 2026-02-01" 
-              keyboardType="numeric"
-            />
+            <Text style={styles.label}>Data de Início:</Text>
+            <TouchableOpacity 
+              style={styles.inputPicker} 
+              onPress={() => setPickerAtivo('inicio')}
+            >
+              <Text style={styles.txtInputPicker}>{dataInicio.toLocaleDateString('pt-BR')}</Text>
+              <Icon name="calendar" size={20} color="#666" />
+            </TouchableOpacity>
 
-            <Text style={styles.label}>Data Final (AAAA-MM-DD):</Text>
-            <TextInput 
-              style={styles.input} 
-              value={dataFim} 
-              onChangeText={setDataFim} 
-              placeholder="Ex: 2026-06-30" 
-              keyboardType="numeric"
-            />
+            <Text style={styles.label}>Data Final:</Text>
+            <TouchableOpacity 
+              style={styles.inputPicker} 
+              onPress={() => setPickerAtivo('fim')}
+            >
+              <Text style={styles.txtInputPicker}>{dataFim.toLocaleDateString('pt-BR')}</Text>
+              <Icon name="calendar" size={20} color="#666" />
+            </TouchableOpacity>
+
+            {pickerAtivo !== null && (
+              <DateTimePicker
+                value={pickerAtivo === 'inicio' ? dataInicio : dataFim}
+                mode="date"
+                display="default"
+                onChange={aoMudarData}
+              />
+            )}
 
             <View style={styles.rowButtons}>
               <TouchableOpacity style={styles.btnCancelar} onPress={() => setModalVisible(false)}>
@@ -155,12 +189,19 @@ const styles = StyleSheet.create({
     color: '#555',
     marginBottom: 5
   },
-  input: {
+  inputPicker: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#CCC',
     borderRadius: 6,
-    padding: 10,
+    padding: 12,
     marginBottom: 15,
+    backgroundColor: '#F9F9F9'
+  },
+  txtInputPicker: {
+    fontSize: 15,
     color: '#333'
   },
   rowButtons: {
