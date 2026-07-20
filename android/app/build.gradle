@@ -89,8 +89,8 @@ android {
         applicationId "com.apolotecnologia.assistenteprofessor"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 55
-        versionName "2.3.55"
+        versionCode 56
+        versionName "2.3.56"
         missingDimensionStrategy 'store', 'play'
         multiDexEnabled true
     }
