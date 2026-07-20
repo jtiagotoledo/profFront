@@ -4,6 +4,7 @@ import {
   StatusBar, TouchableOpacity
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useNavigation } from '@react-navigation/native'; // <-- Hook de navegação
 
 import { useAppStore } from '../store/useAppStore';
 import { useAlunos } from '../hooks/useEscolar';
@@ -12,16 +13,14 @@ import { FiltrosEscolar } from '../components/FiltroEscolar';
 import { AlunoCard } from '../components/AlunoCard';
 import { ModalCadastroAluno } from '../modais/ModalCadastroAluno';
 import { ModalEditarAluno } from '../modais/ModalEditarAluno';
-import { useIAPManager } from '../hooks/useIAPManager';
-import { ModalUpgrade } from '../modais/ModalUpgrade';
 
 function ListaAlunosScreen() {
+  const navigation = useNavigation<any>(); // <-- Instanciando a navegação
   const { idClasseSelecionada, user } = useAppStore();
   const { data: alunos, isLoading, isError } = useAlunos(idClasseSelecionada);
-  const { comprarIlimitado } = useIAPManager();
+  
   const [modalCadastroVisible, setModalCadastroVisible] = useState(false);
   const [modalEditarVisible, setModalEditarVisible] = useState(false);
-  const [modalUpgradeVisible, setModalUpgradeVisible] = useState(false);
   const [alunoParaEditar, setAlunoParaEditar] = useState<any>(null);
 
   const handleLongPressAluno = (aluno: any) => {
@@ -34,7 +33,8 @@ function ListaAlunosScreen() {
     const totalAlunos = alunos?.length || 0;
 
     if (!isPremium && totalAlunos >= 10) {
-      setModalUpgradeVisible(true); 
+      // Chama a tela de upgrade via navegação
+      navigation.navigate("ModalUpgrade"); 
     } else {
       setModalCadastroVisible(true); 
     }
@@ -96,15 +96,6 @@ function ListaAlunosScreen() {
         visible={modalCadastroVisible}
         onClose={() => setModalCadastroVisible(false)}
         idClasseSelecionada={idClasseSelecionada}
-      />
-
-      <ModalUpgrade 
-        visible={modalUpgradeVisible}
-        onClose={() => setModalUpgradeVisible(false)}
-        onUpgrade={() => {
-          setModalUpgradeVisible(false);
-          comprarIlimitado(); 
-        }}
       />
 
       <ModalEditarAluno

@@ -4,13 +4,12 @@ import {
   View, ActivityIndicator, Alert 
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useNavigation } from '@react-navigation/native'; // <-- Importação da navegação
 
 import { ModalGenerico } from '../components/ModalGenerico';
 import { ModalImportacaoExcel } from './ModalImportacaoExcel';
-import { ModalUpgrade } from './ModalUpgrade'; // <-- Importação do Modal de Vendas
 import { useCadastrosEscolares } from '../hooks/useEscolarMutations';
 import { useAppStore } from '../store/useAppStore';
-import { useIAPManager } from '../hooks/useIAPManager'; // <-- Importação do Gestor de Compras
 import { colors } from '../theme/colors';
 
 interface ModalCadastroAlunoProps {
@@ -20,14 +19,13 @@ interface ModalCadastroAlunoProps {
 }
 
 export const ModalCadastroAluno = ({ visible, onClose, idClasseSelecionada }: ModalCadastroAlunoProps) => {
+  const navigation = useNavigation<any>(); // <-- Hook de navegação
   const [nome, setNome] = useState('');
   const [numero, setNumero] = useState(''); 
   const [modalExcelVisivel, setModalExcelVisivel] = useState(false);
-  const [modalUpgradeVisible, setModalUpgradeVisible] = useState(false); // <-- Novo estado
   
   const { mutationAluno } = useCadastrosEscolares();
   const { user } = useAppStore();
-  const { comprarIlimitado } = useIAPManager(); // <-- Hook de compras ativado
 
   const isFormInvalido = !nome.trim() || !numero || !idClasseSelecionada;
 
@@ -65,7 +63,10 @@ export const ModalCadastroAluno = ({ visible, onClose, idClasseSelecionada }: Mo
           },
           { 
             text: "Ver Premium", 
-            onPress: () => setModalUpgradeVisible(true), // <-- Abre o modal de vendas
+            onPress: () => {
+              onClose(); // Fecha este modal de cadastro
+              navigation.navigate("ModalUpgrade"); // Navega para a tela de vendas
+            }, 
             style: "default"
           }
         ]
@@ -121,7 +122,6 @@ export const ModalCadastroAluno = ({ visible, onClose, idClasseSelecionada }: Mo
             <View style={styles.linhaSeparador} />
           </View>
 
-          {/* Botão de importação atualizado */}
           <TouchableOpacity 
             style={[styles.btnImportar, !user?.isPremium && styles.btnImportarBloqueado]} 
             onPress={handleAbrirInstrucoesExcel}
@@ -135,22 +135,12 @@ export const ModalCadastroAluno = ({ visible, onClose, idClasseSelecionada }: Mo
         </View>
       </ModalGenerico>
 
-      {/* Renderiza o Modal do Excel */}
+      {/* Renderiza apenas o Modal do Excel */}
       <ModalImportacaoExcel 
         visible={modalExcelVisivel} 
         onClose={() => setModalExcelVisivel(false)} 
         onSuccessImport={onClose}
         idClasseSelecionada={idClasseSelecionada}
-      />
-
-      {/* Renderiza o Modal de Vendas por cima de tudo */}
-      <ModalUpgrade 
-        visible={modalUpgradeVisible}
-        onClose={() => setModalUpgradeVisible(false)}
-        onUpgrade={() => {
-          setModalUpgradeVisible(false);
-          comprarIlimitado(); 
-        }}
       />
     </>
   );

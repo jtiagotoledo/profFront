@@ -7,6 +7,8 @@ import { RootStackParamList } from './types';
 import { TabNavigator } from './TabNavigation';
 import PerfilScreen from '../screens/PerfilScreen';
 
+import ModalUpgrade from '../modais/ModalUpgrade'; 
+
 import { colors } from '../theme/colors';
 import Login from '../screens/Login';
 import { getToken } from '../utils/authStorage';
@@ -72,6 +74,15 @@ export function AppNavigator() {
               headerStyle: { backgroundColor: colors.primary },
               headerTitleAlign: 'center',
               animation: 'slide_from_right',
+            }}
+          />
+
+          <Stack.Screen
+            name="ModalUpgrade"
+            component={ModalUpgrade}
+            options={{
+              presentation: 'transparentModal', 
+              animation: 'fade', 
             }}
           />
         </>

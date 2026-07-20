@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, FlatList, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useNavigation } from '@react-navigation/native';
 import { useAppStore } from '../store/useAppStore';
 import { useAnos, useClasses } from '../hooks/useEscolar';
 import { colors } from '../theme/colors';
@@ -10,18 +11,14 @@ import { ModalCadastroClasse } from '../modais/ModalCadastroClasse';
 import { ModalEditarAno } from '../modais/ModalEditarAno';
 import { ModalEditarClasse } from '../modais/ModalEditarClasse'; 
 
-import { ModalUpgrade } from '../modais/ModalUpgrade';
-import { useIAPManager } from '../hooks/useIAPManager';
-
 export const FiltrosEscolar = () => {
+  const navigation = useNavigation<any>();
   const { idAnoSelecionado, idClasseSelecionada, setAno, setClasse, user } = useAppStore();
-  const { comprarIlimitado } = useIAPManager();
 
   const { data: anos, isLoading: loadingAnos } = useAnos();
   const { data: classes, isLoading: loadingClasses } = useClasses(idAnoSelecionado);
 
   const [modalType, setModalType] = useState<'ano' | 'classe' | null>(null);
-  const [modalUpgradeVisible, setModalUpgradeVisible] = useState(false);
   
   const [modalEditAnoVisible, setModalEditAnoVisible] = useState(false);
   const [anoParaEditar, setAnoParaEditar] = useState<{ _id: string; rotulo: string } | null>(null);
@@ -33,7 +30,8 @@ export const FiltrosEscolar = () => {
 
   const handlePressAddAno = () => {
     if (!isPremium && (anos?.length || 0) >= 1) {
-      setModalUpgradeVisible(true);
+      // Chama a tela do modal de upgrade via navegação
+      navigation.navigate("ModalUpgrade");
     } else {
       setModalType('ano');
     }
@@ -41,7 +39,7 @@ export const FiltrosEscolar = () => {
 
   const handlePressAddClasse = () => {
     if (!isPremium && (classes?.length || 0) >= 1) {
-      setModalUpgradeVisible(true);
+      navigation.navigate("ModalUpgrade");
     } else {
       setModalType('classe');
     }
@@ -181,16 +179,6 @@ export const FiltrosEscolar = () => {
         visible={modalEditClasseVisible} 
         onClose={() => { setModalEditClasseVisible(false); setClasseParaEditar(null); }} 
         classe={classeParaEditar} 
-      />
-
-      {/* --- MODAL DE UPGRADE (PREMIUM) --- */}
-      <ModalUpgrade 
-        visible={modalUpgradeVisible} 
-        onClose={() => setModalUpgradeVisible(false)}
-        onUpgrade={() => {
-          setModalUpgradeVisible(false);
-          comprarIlimitado();
-        }}
       />
     </View>
   );
