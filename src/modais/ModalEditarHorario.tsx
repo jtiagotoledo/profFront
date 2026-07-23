@@ -100,7 +100,6 @@ export const ModalEditarHorario = ({
     <Modal visible={visible} animationType="fade" transparent>
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
-          {/* Título mostrando a aula e o dia da semana amigável */}
           <Text style={styles.title}>Editar {aula}ª Aula - {diaSemanaText}</Text>
           
           <Text style={styles.label}>Horário (ex: 07:10 - 08:00)</Text>

@@ -1,4 +1,3 @@
-// src/screens/GradeHorariosScreen.tsx
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { getHorarios, saveHorario, deleteHorario, getAnosAPI } from '../services/dataApi';
@@ -17,7 +16,7 @@ const NOMES_DIAS: { [key: number]: string } = {
 };
 
 export const GradeHorariosScreen = () => {
-  const [quantidadeAulas, setQuantidadeAulas] = useState<number>(6); // Começa sempre com 6 linhas fixas
+  const [quantidadeAulas, setQuantidadeAulas] = useState<number>(0);
   const [horariosSalvos, setHorariosSalvos] = useState<any[]>([]);
   const [anosDisponiveis, setAnosDisponiveis] = useState<any[]>([]);
   
@@ -39,13 +38,14 @@ export const GradeHorariosScreen = () => {
       setHorariosSalvos(horariosData);
       setAnosDisponiveis(anosData);
 
-      // Garante que a grade cubra pelo menos a maior aula cadastrada no banco ao carregar a tela pela primeira vez
-      if (horariosData.length > 0) {
-        const maxAulaBanco = Math.max(...horariosData.map((h: any) => h.aula));
-        if (maxAulaBanco > 6) {
-          setQuantidadeAulas(maxAulaBanco);
+      const maxAulaBanco = horariosData.length > 0 ? Math.max(...horariosData.map((h: any) => h.aula)) : 0;
+
+      setQuantidadeAulas(prev => {
+        if (prev === 0) {
+          return maxAulaBanco > 0 ? maxAulaBanco : 6; // Se tiver dados, usa o número real; se vazio, assume 6
         }
-      }
+        return Math.max(prev, maxAulaBanco);
+      });
     } catch (error) {
       console.error(error);
       Alert.alert('Erro', 'Não foi possível carregar a grade e os anos letivos.');
@@ -54,7 +54,6 @@ export const GradeHorariosScreen = () => {
     }
   };
 
-  // Gera a lista de aulas de 1 até `quantidadeAulas`
   const listaAulas = Array.from({ length: quantidadeAulas }, (_, i) => i + 1);
 
   const adicionarLinhaAula = () => {
@@ -83,7 +82,7 @@ export const GradeHorariosScreen = () => {
               try {
                 await Promise.all(horariosNestaAula.map(h => deleteHorario(h._id)));
                 setQuantidadeAulas(prev => Math.max(1, prev - 1));
-                carregarDados();
+                await carregarDados();
               } catch (error) {
                 Alert.alert('Erro', 'Não foi possível remover os horários desta aula.');
               }
@@ -128,7 +127,7 @@ export const GradeHorariosScreen = () => {
     return horariosSalvos.find(h => h.diaSemana === dia && h.aula === aula);
   };
 
-  if (loading) return <ActivityIndicator size="large" color="#007bff" style={{ flex: 1 }} />;
+  if (loading || quantidadeAulas === 0) return <ActivityIndicator size="large" color="#007bff" style={{ flex: 1 }} />;
 
   return (
     <View style={styles.container}>
@@ -138,7 +137,7 @@ export const GradeHorariosScreen = () => {
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.btnAcao} onPress={removerUltimaLinhaAula} activeOpacity={0.8}>
-          <Text style={styles.btnTexto}>- Remover Última</Text>
+          <Text style={styles.btnTexto}>- Remover Aula</Text>
         </TouchableOpacity>
       </View>
 
@@ -146,7 +145,6 @@ export const GradeHorariosScreen = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.grid}>
             
-            {/* Cabeçalho dos Dias */}
             <View style={styles.row}>
               <View style={[styles.cell, styles.headerCell]}>
                 <Text style={styles.headerText}>Aula \ Dia</Text>
@@ -158,7 +156,6 @@ export const GradeHorariosScreen = () => {
               ))}
             </View>
 
-            {/* Linhas da Grade baseadas diretamente no contador `quantidadeAulas` */}
             {listaAulas.map(aula => (
               <View key={`row-${aula}`} style={styles.row}>
                 <View style={[styles.cell, styles.headerCell, styles.rowHeaderContainer]}>
