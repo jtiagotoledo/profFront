@@ -115,3 +115,18 @@ export const importarAlunosLoteAPI = async (classeId: string, alunos: any[]) => 
   const response = await api.post(`/alunos/importar-lote`, { classeId, alunos });
   return response.data;
 };
+
+export const getHorarios = async () => {
+  const response = await api.get('/horarios');
+  return response.data;
+};
+
+export const saveHorario = async (horarioData: { diaSemana: number; aula: number; horario: string; classeId: string }) => {
+  const response = await api.post('/horarios', horarioData);
+  return response.data;
+};
+
+export const deleteHorario = async (id: string) => {
+  const response = await api.delete(`/horarios/${id}`);
+  return response.data;
+};

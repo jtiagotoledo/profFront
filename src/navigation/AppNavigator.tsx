@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList } from './types';
 import { TabNavigator } from './TabNavigation';
 import PerfilScreen from '../screens/PerfilScreen';
+import { GradeHorariosScreen } from '../screens/GradeHorariosScreen'; // <-- Importação da nova tela
 
 import ModalUpgrade from '../modais/ModalUpgrade'; 
 
@@ -70,6 +71,19 @@ export function AppNavigator() {
             options={{
               headerShown: true,
               title: 'Meu Perfil',
+              headerTintColor: '#FFF',
+              headerStyle: { backgroundColor: colors.primary },
+              headerTitleAlign: 'center',
+              animation: 'slide_from_right',
+            }}
+          />
+
+          <Stack.Screen
+            name="GradeHorarios"
+            component={GradeHorariosScreen}
+            options={{
+              headerShown: true,
+              title: 'Grade de Horários',
               headerTintColor: '#FFF',
               headerStyle: { backgroundColor: colors.primary },
               headerTitleAlign: 'center',

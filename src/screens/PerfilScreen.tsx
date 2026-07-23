@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { pick, isErrorWithCode, errorCodes } from '@react-native-documents/picker';
+import { useNavigation } from '@react-navigation/native';
 
 import { useAppStore } from '../store/useAppStore';
 import { colors } from '../theme/colors';
@@ -11,6 +12,7 @@ import { updateFotoPerfilAPI } from '../services/usersApi';
 export default function PerfilScreen() {
   const { user, appVersion, logout, refreshUser } = useAppStore();
   const [uploadingFoto, setUploadingFoto] = useState(false);
+  const navigation = useNavigation<any>();
 
   const handleDebugLimparCompras = async () => {
     if (__DEV__) {
@@ -111,6 +113,18 @@ export default function PerfilScreen() {
 
         {/* MENU DE OPÇÕES */}
         <View style={styles.menuSection}>
+          
+          {/* BOTÃO DA GRADE DE HORÁRIOS */}
+          <TouchableOpacity 
+            style={styles.menuItem} 
+            activeOpacity={0.7}
+            onPress={() => navigation.navigate('GradeHorarios')}
+          >
+            <Icon name="calendar-month-outline" size={24} color={colors.primary} />
+            <Text style={styles.menuText}>Grade de Horários</Text>
+            <Icon name="chevron-right" size={20} color="#9CA3AF" />
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.menuItem} activeOpacity={0.7}>
             <Icon name="account-edit-outline" size={24} color={colors.primary} />
             <Text style={styles.menuText}>Editar Perfil</Text>
