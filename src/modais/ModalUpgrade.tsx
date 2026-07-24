@@ -1,18 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
+import { getAvailablePurchases } from 'react-native-iap'; // Removido finishTransaction daqui
 
 import { colors } from '../theme/colors';
 import { iapService } from '../services/iapService';
-import { useIAPManager } from '../hooks/useIAPManager'; 
+import { useIAPManager } from '../hooks/useIAPManager';
+import api from '../services/api'; 
+import { useAppStore } from '../store/useAppStore'; 
+import { getMeAPI } from '../services/usersApi'; 
 
 export default function ModalUpgrade() {
   const navigation = useNavigation<any>();
   const { comprarIlimitado } = useIAPManager();
+  const { setUser } = useAppStore(); 
   
   const [price, setPrice] = useState<string | null>(null);
   const [loadingPrice, setLoadingPrice] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
 
   useEffect(() => {
     fetchPrice();
@@ -25,11 +31,79 @@ export default function ModalUpgrade() {
     setLoadingPrice(false);
   };
 
-  const handleUpgrade = async () => {
-    // Fecha a tela e inicia o fluxo de compra
-    navigation.goBack();
-    await comprarIlimitado();
+  // Sincroniza os dados locais após transações para liberar as funções premium imediatamente
+  const syncUserProfile = async () => {
+    try {
+      const userData = await getMeAPI();
+      setUser(userData);
+    } catch (error) {
+      console.log("Erro ao atualizar perfil após transação:", error);
+    }
   };
+
+  const handleUpgrade = async () => {
+    try {
+      // 1. Inicia o fluxo e AGUARDA a Google Play terminar
+      await comprarIlimitado();
+      
+      // 2. Atualiza o app com o status premium
+      await syncUserProfile();
+      
+      // 3. Fecha a tela
+      navigation.goBack();
+    } catch (error) {
+      console.log("Erro na compra:", error);
+    }
+  };
+
+  const handleRestaurar = async () => {
+    setIsRestoring(true);
+    try {
+      const purchases = await getAvailablePurchases();
+      
+      if (purchases && purchases.length > 0) {
+        const ultimaCompra = purchases[purchases.length - 1];
+
+        // Envia para o profBack validar
+        await api.post('/usuarios/validar-compra', {
+          productId: ultimaCompra.productId,
+          purchaseToken: ultimaCompra.purchaseToken,
+        });
+        
+        await syncUserProfile(); 
+
+        Alert.alert("Sucesso", "Sua compra foi encontrada e o acesso Premium restaurado!");
+        navigation.goBack(); 
+      } else {
+        Alert.alert("Aviso", "Nenhuma compra anterior foi encontrada nesta conta do Google.");
+      }
+    } catch (error) {
+      console.error('Erro ao restaurar compras:', error);
+      Alert.alert("Erro", "Falha ao tentar restaurar compras. Tente novamente.");
+    } finally {
+      setIsRestoring(false);
+    }
+  };
+
+  /* 
+  // FUNÇÃO DEV COMENTADA (Descomente apenas se precisar limpar compras travadas em novos testes)
+  const limparComprasTravadas = async () => {
+    try {
+      const purchases = await getAvailablePurchases();
+      if (purchases && purchases.length > 0) {
+        for (let purchase of purchases) {
+          await finishTransaction({ purchase, isConsumable: true });
+        }
+        Alert.alert("Limpeza Concluída!", "O Google esqueceu sua compra. Feche o app e tente comprar de novo.");
+      } else {
+        Alert.alert("Aviso", "Nenhuma compra travada encontrada.");
+      }
+    } catch (error) {
+      console.error("Erro ao limpar:", error);
+      Alert.alert("Erro", "Falha ao tentar limpar as compras.");
+    }
+  };
+  */
 
   const handleClose = () => {
     navigation.goBack();
@@ -65,12 +139,30 @@ export default function ModalUpgrade() {
         </View>
 
         <TouchableOpacity 
-          style={[styles.btnUpgrade, loadingPrice && { opacity: 0.7 }]} 
+          style={[styles.btnUpgrade, (loadingPrice || isRestoring) && { opacity: 0.7 }]} 
           onPress={handleUpgrade} 
-          disabled={loadingPrice}
+          disabled={loadingPrice || isRestoring}
         >
           <Text style={styles.btnUpgradeText}>ASSINAR AGORA</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.btnRestaurar} 
+          onPress={handleRestaurar}
+          disabled={isRestoring}
+        >
+          {isRestoring ? (
+            <ActivityIndicator color={colors.primary} size="small" />
+          ) : (
+            <Text style={styles.btnRestaurarText}>Já comprou? Restaurar compra</Text>
+          )}
+        </TouchableOpacity>
+
+        {/* BOTÃO DEV COMENTADO 
+        <TouchableOpacity style={styles.btnDev} onPress={limparComprasTravadas}>
+          <Text style={styles.btnDevText}>[DEV] Limpar Conta Google</Text>
+        </TouchableOpacity>
+        */}
 
         <TouchableOpacity style={styles.btnCancel} onPress={handleClose}>
           <Text style={styles.btnCancelText}>Talvez mais tarde</Text>
@@ -129,6 +221,12 @@ const styles = StyleSheet.create({
   },
   btnUpgradeText: { color: '#FFF', fontWeight: 'bold', fontSize: 16, letterSpacing: 1 },
   
+  btnRestaurar: { marginTop: 15, padding: 10 },
+  btnRestaurarText: { color: colors.primary, fontWeight: 'bold', fontSize: 14 },
+
+  btnDev: { marginTop: 15, padding: 10, backgroundColor: '#EF4444', borderRadius: 8 },
+  btnDevText: { color: '#FFF', fontWeight: 'bold', fontSize: 12 },
+
   btnCancel: { marginTop: 15, padding: 10 },
   btnCancelText: { color: '#9CA3AF', fontWeight: '600' }
 });
